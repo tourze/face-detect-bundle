@@ -20,7 +20,7 @@
 
 ### 核心组件
 
-```
+```ascii
 BaiduAiClient (百度AI客户端)
 ├── AuthenticationService (认证服务)
 ├── FaceDetectionService (人脸检测服务)
@@ -187,65 +187,6 @@ sequenceDiagram
 ```
 
 ## 配置管理
-
-### 配置文件结构
-
-```yaml
-# config/packages/face_detect.yaml
-face_detect:
-  baidu_ai:
-    # 主要配置
-    app_id: '%env(BAIDU_AI_APP_ID)%'
-    api_key: '%env(BAIDU_AI_API_KEY)%'
-    secret_key: '%env(BAIDU_AI_SECRET_KEY)%'
-    
-    # 备用配置（可选）
-    backup:
-      app_id: '%env(BAIDU_AI_BACKUP_APP_ID)%'
-      api_key: '%env(BAIDU_AI_BACKUP_API_KEY)%'
-      secret_key: '%env(BAIDU_AI_BACKUP_SECRET_KEY)%'
-    
-    # API配置
-    endpoints:
-      base_url: 'https://aip.baidubce.com'
-      auth_url: '/oauth/2.0/token'
-      detect_url: '/rest/2.0/face/v3/detect'
-      match_url: '/rest/2.0/face/v3/match'
-      search_url: '/rest/2.0/face/v3/search'
-    
-    # 质量控制
-    quality:
-      min_face_size: 80          # 最小人脸尺寸
-      max_blur: 0.3              # 最大模糊度
-      min_illumination: 40       # 最小光照度
-      min_completeness: 0.8      # 最小完整度
-      min_confidence: 0.8        # 最小置信度
-    
-    # 对比阈值
-    comparison:
-      success_threshold: 80.0    # 验证成功阈值
-      warning_threshold: 70.0    # 警告阈值
-      
-    # 频率限制
-    rate_limit:
-      requests_per_second: 10    # 每秒请求数
-      requests_per_day: 50000    # 每日请求数
-      
-    # 缓存配置
-    cache:
-      enabled: true
-      ttl: 3600                  # 缓存时间（秒）
-      
-    # 重试配置
-    retry:
-      max_attempts: 3            # 最大重试次数
-      delay: 1000               # 重试延迟（毫秒）
-      
-    # 超时配置
-    timeout:
-      connect: 5                 # 连接超时（秒）
-      read: 30                   # 读取超时（秒）
-```
 
 ### 环境变量配置
 
