@@ -5,7 +5,7 @@ namespace Tourze\FaceDetectBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Tourze\FaceDetectBundle\Entity\FaceProfile;
-use Tourze\FaceDetectBundle\Entity\FaceProfileStatus;
+use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
 
 /**
  * 人脸档案仓储类

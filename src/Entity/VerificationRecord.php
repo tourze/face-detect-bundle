@@ -5,6 +5,8 @@ namespace Tourze\FaceDetectBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
+use Tourze\FaceDetectBundle\Enum\VerificationResult;
+use Tourze\FaceDetectBundle\Enum\VerificationType;
 
 /**
  * 验证记录实体

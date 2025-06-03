@@ -5,7 +5,7 @@ namespace Tourze\FaceDetectBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Tourze\FaceDetectBundle\Entity\OperationLog;
-use Tourze\FaceDetectBundle\Entity\OperationStatus;
+use Tourze\FaceDetectBundle\Enum\OperationStatus;
 
 /**
  * 操作日志仓储类

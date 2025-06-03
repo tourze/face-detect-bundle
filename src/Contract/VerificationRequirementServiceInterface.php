@@ -2,7 +2,7 @@
 
 namespace Tourze\FaceDetectBundle\Contract;
 
-use Tourze\FaceDetectBundle\Entity\VerificationType;
+use Tourze\FaceDetectBundle\Enum\VerificationType;
 use Tourze\FaceDetectBundle\Exception\FaceDetectException;
 
 /**

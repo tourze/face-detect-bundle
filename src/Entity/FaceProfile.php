@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
+use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
 
 /**
  * 人脸档案实体

@@ -5,6 +5,7 @@ namespace Tourze\FaceDetectBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
+use Tourze\FaceDetectBundle\Enum\OperationStatus;
 
 /**
  * 操作日志实体

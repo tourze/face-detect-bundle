@@ -1,6 +1,6 @@
 <?php
 
-namespace Tourze\FaceDetectBundle\Entity;
+namespace Tourze\FaceDetectBundle\Enum;
 
 /**
  * 人脸档案状态枚举

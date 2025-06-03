@@ -5,7 +5,7 @@ namespace Tourze\FaceDetectBundle\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Tourze\FaceDetectBundle\Entity\VerificationRecord;
-use Tourze\FaceDetectBundle\Entity\VerificationResult;
+use Tourze\FaceDetectBundle\Enum\VerificationResult;
 
 /**
  * 验证记录仓储类
