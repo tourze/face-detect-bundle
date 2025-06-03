@@ -150,7 +150,7 @@ class VerificationStrategyRepository extends ServiceEntityRepository
     /**
      * 查找需要更新的策略（基于某些条件）
      */
-    public function findForUpdate(\DateTimeInterface $since = null): array
+    public function findForUpdate(?\DateTimeInterface $since = null): array
     {
         $since = $since ?? new \DateTimeImmutable('-1 day');
 

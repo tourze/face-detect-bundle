@@ -83,7 +83,7 @@ class VerificationRecordRepository extends ServiceEntityRepository
     /**
      * 统计用户成功验证次数
      */
-    public function countSuccessfulByUserId(string $userId, \DateTimeInterface $since = null): int
+    public function countSuccessfulByUserId(string $userId, ?\DateTimeInterface $since = null): int
     {
         $qb = $this->createQueryBuilder('vr')
             ->select('COUNT(vr.id)')

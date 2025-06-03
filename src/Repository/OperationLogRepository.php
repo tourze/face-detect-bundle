@@ -42,7 +42,7 @@ class OperationLogRepository extends ServiceEntityRepository
     /**
      * 查找需要验证但未完成的操作
      */
-    public function findPendingVerification(string $userId = null): array
+    public function findPendingVerification(?string $userId = null): array
     {
         $qb = $this->createQueryBuilder('ol')
             ->where('ol.verificationRequired = :required')
