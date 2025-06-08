@@ -8,12 +8,13 @@ use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
+use Tourze\FaceDetectBundle\Repository\FaceProfileRepository;
 
 /**
  * 人脸档案实体
  * 存储用户的人脸特征数据和相关信息
  */
-#[ORM\Entity(repositoryClass: \Tourze\FaceDetectBundle\Repository\FaceProfileRepository::class)]
+#[ORM\Entity(repositoryClass: FaceProfileRepository::class)]
 #[ORM\Table(name: 'face_profiles', options: ['comment' => '人脸档案表'])]
 #[ORM\Index(name: 'idx_status', columns: ['status'])]
 #[ORM\Index(name: 'idx_expires_time', columns: ['expires_time'])]

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -8,6 +10,12 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
 
 /**
  * 验证策略仓储类
+ * 负责验证策略数据的查询和管理操作
+ * 
+ * @method VerificationStrategy|null find($id, $lockMode = null, $lockVersion = null)
+ * @method VerificationStrategy|null findOneBy(array $criteria, array $orderBy = null)
+ * @method VerificationStrategy[]    findAll()
+ * @method VerificationStrategy[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class VerificationStrategyRepository extends ServiceEntityRepository
 {
@@ -158,6 +166,58 @@ class VerificationStrategyRepository extends ServiceEntityRepository
             ->where('vs.updateTime >= :since')
             ->setParameter('since', $since)
             ->orderBy('vs.updateTime', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 查找默认策略（优先级最高且启用的策略）
+     */
+    public function findDefaultStrategies(): array
+    {
+        $subquery = $this->getEntityManager()->createQueryBuilder()
+            ->select('MAX(vs2.priority)')
+            ->from(VerificationStrategy::class, 'vs2')
+            ->where('vs2.businessType = vs.businessType')
+            ->andWhere('vs2.isEnabled = true')
+            ->getDQL();
+
+        $qb = $this->createQueryBuilder('vs')
+            ->where('vs.isEnabled = true')
+            ->andWhere('vs.priority = (' . $subquery . ')')
+            ->orderBy('vs.businessType', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 根据配置参数值查找策略
+     */
+    public function findByConfigValue(string $configKey, mixed $value): array
+    {
+        $qb = $this->createQueryBuilder('vs')
+            ->where('JSON_EXTRACT(vs.config, :configPath) = :value')
+            ->setParameter('configPath', '$.' . $configKey)
+            ->setParameter('value', $value);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 获取业务类型分组的策略统计
+     */
+    public function getBusinessTypeStatistics(): array
+    {
+        $qb = $this->createQueryBuilder('vs')
+            ->select([
+                'vs.businessType',
+                'COUNT(vs.id) as total',
+                'COUNT(CASE WHEN vs.isEnabled = true THEN 1 END) as enabled',
+                'AVG(vs.priority) as avgPriority',
+                'MAX(vs.priority) as maxPriority'
+            ])
+            ->groupBy('vs.businessType')
+            ->orderBy('vs.businessType', 'ASC');
 
         return $qb->getQuery()->getResult();
     }

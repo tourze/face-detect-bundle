@@ -6,12 +6,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\FaceDetectBundle\Enum\OperationStatus;
+use Tourze\FaceDetectBundle\Repository\OperationLogRepository;
 
 /**
  * 操作日志实体
  * 记录用户的业务操作和验证关联信息
  */
-#[ORM\Entity(repositoryClass: \Tourze\FaceDetectBundle\Repository\OperationLogRepository::class)]
+#[ORM\Entity(repositoryClass: OperationLogRepository::class)]
 #[ORM\Table(name: 'operation_logs', options: ['comment' => '操作日志表'])]
 #[ORM\Index(name: 'idx_user_id', columns: ['user_id'])]
 #[ORM\Index(name: 'idx_operation_type', columns: ['operation_type'])]

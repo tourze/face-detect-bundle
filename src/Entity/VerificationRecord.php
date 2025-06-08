@@ -7,12 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\FaceDetectBundle\Enum\VerificationResult;
 use Tourze\FaceDetectBundle\Enum\VerificationType;
+use Tourze\FaceDetectBundle\Repository\VerificationRecordRepository;
 
 /**
  * 验证记录实体
  * 记录每次人脸验证的详细信息
  */
-#[ORM\Entity(repositoryClass: \Tourze\FaceDetectBundle\Repository\VerificationRecordRepository::class)]
+#[ORM\Entity(repositoryClass: VerificationRecordRepository::class)]
 #[ORM\Table(name: 'verification_records', options: ['comment' => '验证记录表'])]
 #[ORM\Index(name: 'idx_user_id', columns: ['user_id'])]
 #[ORM\Index(name: 'idx_strategy_id', columns: ['strategy_id'])]

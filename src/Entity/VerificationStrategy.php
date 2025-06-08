@@ -8,12 +8,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\FaceDetectBundle\Repository\VerificationStrategyRepository;
 
 /**
  * 验证策略实体
  * 定义不同业务场景的验证策略
  */
-#[ORM\Entity(repositoryClass: \Tourze\FaceDetectBundle\Repository\VerificationStrategyRepository::class)]
+#[ORM\Entity(repositoryClass: VerificationStrategyRepository::class)]
 #[ORM\Table(name: 'verification_strategies', options: ['comment' => '验证策略表'])]
 #[ORM\Index(name: 'idx_business_type', columns: ['business_type'])]
 #[ORM\Index(name: 'idx_enabled_priority', columns: ['is_enabled', 'priority'])]

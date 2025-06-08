@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -9,6 +11,12 @@ use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
 
 /**
  * 人脸档案仓储类
+ * 负责人脸档案数据的查询和统计操作
+ *
+ * @method FaceProfile|null find($id, $lockMode = null, $lockVersion = null)
+ * @method FaceProfile|null findOneBy(array $criteria, array $orderBy = null)
+ * @method FaceProfile[]    findAll()
+ * @method FaceProfile[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class FaceProfileRepository extends ServiceEntityRepository
 {
@@ -151,5 +159,53 @@ class FaceProfileRepository extends ServiceEntityRepository
             ->setParameter('disabled', FaceProfileStatus::DISABLED);
 
         return $qb->getQuery()->getSingleResult();
+    }
+
+    /**
+     * 查找即将过期的人脸档案（指定天数内）
+     */
+    public function findExpiringProfiles(int $days = 7): array
+    {
+        $futureDate = new \DateTimeImmutable("+{$days} days");
+
+        $qb = $this->createQueryBuilder('fp')
+            ->where('fp.expiresTime IS NOT NULL')
+            ->andWhere('fp.expiresTime <= :futureDate')
+            ->andWhere('fp.expiresTime > :now')
+            ->andWhere('fp.status = :status')
+            ->setParameter('futureDate', $futureDate)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('status', FaceProfileStatus::ACTIVE)
+            ->orderBy('fp.expiresTime', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 根据采集方式查找人脸档案
+     */
+    public function findByCollectionMethod(string $collectionMethod): array
+    {
+        $qb = $this->createQueryBuilder('fp')
+            ->where('fp.collectionMethod = :method')
+            ->setParameter('method', $collectionMethod)
+            ->orderBy('fp.createTime', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 查找高质量人脸档案
+     */
+    public function findHighQualityProfiles(float $threshold = 0.8): array
+    {
+        $qb = $this->createQueryBuilder('fp')
+            ->where('fp.qualityScore >= :threshold')
+            ->andWhere('fp.status = :status')
+            ->setParameter('threshold', $threshold)
+            ->setParameter('status', FaceProfileStatus::ACTIVE)
+            ->orderBy('fp.qualityScore', 'DESC');
+
+        return $qb->getQuery()->getResult();
     }
 }

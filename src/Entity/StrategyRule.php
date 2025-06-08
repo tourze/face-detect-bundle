@@ -6,12 +6,13 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\FaceDetectBundle\Repository\StrategyRuleRepository;
 
 /**
  * 策略规则实体
  * 存储验证策略的具体规则配置
  */
-#[ORM\Entity(repositoryClass: \Tourze\FaceDetectBundle\Repository\StrategyRuleRepository::class)]
+#[ORM\Entity(repositoryClass: StrategyRuleRepository::class)]
 #[ORM\Table(name: 'strategy_rules', options: ['comment' => '策略规则表'])]
 #[ORM\Index(name: 'idx_strategy_id', columns: ['strategy_id'])]
 #[ORM\Index(name: 'idx_rule_type', columns: ['rule_type'])]

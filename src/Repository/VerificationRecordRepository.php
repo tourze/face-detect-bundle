@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -9,6 +11,12 @@ use Tourze\FaceDetectBundle\Enum\VerificationResult;
 
 /**
  * 验证记录仓储类
+ * 负责人脸验证记录数据的查询和统计操作
+ *
+ * @method VerificationRecord|null find($id, $lockMode = null, $lockVersion = null)
+ * @method VerificationRecord|null findOneBy(array $criteria, array $orderBy = null)
+ * @method VerificationRecord[]    findAll()
+ * @method VerificationRecord[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class VerificationRecordRepository extends ServiceEntityRepository
 {
@@ -187,5 +195,72 @@ class VerificationRecordRepository extends ServiceEntityRepository
             ->setParameter('before', $before);
 
         return $qb->getQuery()->execute();
+    }
+
+    /**
+     * 查找指定时间段内失败的验证记录
+     */
+    public function findFailedRecordsInTimeRange(
+        \DateTimeInterface $start,
+        \DateTimeInterface $end,
+        ?string $userId = null
+    ): array {
+        $qb = $this->createQueryBuilder('vr')
+            ->where('vr.result = :failed')
+            ->andWhere('vr.createTime >= :start')
+            ->andWhere('vr.createTime <= :end')
+            ->setParameter('failed', VerificationResult::FAILED)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->orderBy('vr.createTime', 'DESC');
+
+        if ($userId !== null) {
+            $qb->andWhere('vr.userId = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 查找验证时间超过阈值的记录
+     */
+    public function findSlowVerifications(int $timeThreshold = 5000): array
+    {
+        $qb = $this->createQueryBuilder('vr')
+            ->where('vr.verificationTime > :threshold')
+            ->setParameter('threshold', $timeThreshold)
+            ->orderBy('vr.verificationTime', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * 获取每日验证统计
+     */
+    public function getDailyStatistics(\DateTimeInterface $date): array
+    {
+        $startOfDay = \DateTimeImmutable::createFromInterface($date)->setTime(0, 0, 0);
+        $endOfDay = \DateTimeImmutable::createFromInterface($date)->setTime(23, 59, 59);
+
+        $qb = $this->createQueryBuilder('vr')
+            ->select([
+                'COUNT(vr.id) as total',
+                'COUNT(CASE WHEN vr.result = :success THEN 1 END) as successful',
+                'COUNT(CASE WHEN vr.result = :failed THEN 1 END) as failed',
+                'COUNT(CASE WHEN vr.result = :timeout THEN 1 END) as timeout',
+                'AVG(vr.confidenceScore) as avgConfidence',
+                'AVG(vr.verificationTime) as avgTime',
+                'COUNT(DISTINCT vr.userId) as uniqueUsers'
+            ])
+            ->where('vr.createTime >= :start')
+            ->andWhere('vr.createTime <= :end')
+            ->setParameter('start', $startOfDay)
+            ->setParameter('end', $endOfDay)
+            ->setParameter('success', VerificationResult::SUCCESS)
+            ->setParameter('failed', VerificationResult::FAILED)
+            ->setParameter('timeout', VerificationResult::TIMEOUT);
+
+        return $qb->getQuery()->getSingleResult();
     }
 }
