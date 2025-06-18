@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\FaceDetectBundle\Repository\StrategyRuleRepository;
 
 /**
@@ -19,6 +20,7 @@ use Tourze\FaceDetectBundle\Repository\StrategyRuleRepository;
 #[ORM\Index(name: 'idx_enabled_priority', columns: ['is_enabled', 'priority'])]
 class StrategyRule implements \Stringable
 {
+    use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT)]
@@ -155,19 +157,7 @@ class StrategyRule implements \Stringable
         $this->priority = $priority;
         $this->updateTime = new \DateTimeImmutable();
         return $this;
-    }
-
-    public function getCreateTime(): \DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function getUpdateTime(): \DateTimeInterface
-    {
-        return $this->updateTime;
-    }
-
-    /**
+    }/**
      * 获取条件值
      */
     public function getConditionValue(string $key, mixed $default = null): mixed

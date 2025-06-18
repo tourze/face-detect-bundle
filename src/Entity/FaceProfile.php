@@ -6,6 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
 use Tourze\FaceDetectBundle\Repository\FaceProfileRepository;
@@ -21,6 +22,7 @@ use Tourze\FaceDetectBundle\Repository\FaceProfileRepository;
 #[ORM\UniqueConstraint(name: 'uk_user_id', columns: ['user_id'])]
 class FaceProfile implements \Stringable
 {
+    use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT)]
@@ -149,19 +151,7 @@ class FaceProfile implements \Stringable
         $this->expiresTime = $expiresTime;
         $this->updateTime = new \DateTimeImmutable();
         return $this;
-    }
-
-    public function getCreateTime(): \DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function getUpdateTime(): \DateTimeInterface
-    {
-        return $this->updateTime;
-    }
-
-    /**
+    }/**
      * 检查人脸档案是否已过期
      */
     public function isExpired(): bool

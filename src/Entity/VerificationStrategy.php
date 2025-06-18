@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\FaceDetectBundle\Repository\VerificationStrategyRepository;
 
 /**
@@ -21,6 +22,7 @@ use Tourze\FaceDetectBundle\Repository\VerificationStrategyRepository;
 #[ORM\UniqueConstraint(name: 'uk_name', columns: ['name'])]
 class VerificationStrategy implements \Stringable
 {
+    use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT)]
@@ -149,19 +151,7 @@ class VerificationStrategy implements \Stringable
         $this->config = $config;
         $this->updateTime = new \DateTimeImmutable();
         return $this;
-    }
-
-    public function getCreateTime(): \DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function getUpdateTime(): \DateTimeInterface
-    {
-        return $this->updateTime;
-    }
-
-    public function getRules(): Collection
+    }public function getRules(): Collection
     {
         return $this->rules;
     }
