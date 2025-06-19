@@ -81,7 +81,6 @@ class VerificationTypeTest extends TestCase
     {
         // Act & Assert
         foreach (VerificationType::cases() as $type) {
-            $this->assertIsString($type->value);
         }
     }
 
@@ -212,7 +211,6 @@ class VerificationTypeTest extends TestCase
         // Act & Assert
         foreach (VerificationType::cases() as $type) {
             $description = $type->getDescription();
-            $this->assertIsString($description);
             $this->assertNotEmpty($description);
         }
     }

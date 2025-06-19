@@ -4,8 +4,6 @@ namespace Tourze\FaceDetectBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
@@ -25,8 +23,8 @@ class FaceProfile implements \Stringable
     use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::BIGINT)]
-    private readonly int $id;
+    #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
+    private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false, options: ['comment' => '用户ID'])]
     private string $userId;
@@ -47,23 +45,14 @@ class FaceProfile implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 16, enumType: FaceProfileStatus::class, options: ['default' => 'active', 'comment' => '状态'])]
     private FaceProfileStatus $status = FaceProfileStatus::ACTIVE;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '过期时间'])]
-    private ?\DateTimeInterface $expiresTime = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '过期时间'])]
+    private ?\DateTimeImmutable $expiresTime = null;
 
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '创建时间'])]
-    private \DateTimeInterface $createTime;
-
-    #[UpdateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '更新时间'])]
-    private \DateTimeInterface $updateTime;
 
     public function __construct(string $userId, string $faceFeatures)
     {
         $this->userId = $userId;
         $this->faceFeatures = $faceFeatures;
-        $this->createTime = new \DateTimeImmutable();
-        $this->updateTime = new \DateTimeImmutable();
     }
 
     public function __toString(): string
@@ -71,7 +60,7 @@ class FaceProfile implements \Stringable
         return sprintf('FaceProfile[%d]: %s', $this->id ?? 0, $this->userId);
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -89,7 +78,6 @@ class FaceProfile implements \Stringable
     public function setFaceFeatures(string $faceFeatures): self
     {
         $this->faceFeatures = $faceFeatures;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -101,7 +89,6 @@ class FaceProfile implements \Stringable
     public function setQualityScore(float $qualityScore): self
     {
         $this->qualityScore = $qualityScore;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -113,7 +100,6 @@ class FaceProfile implements \Stringable
     public function setCollectionMethod(string $collectionMethod): self
     {
         $this->collectionMethod = $collectionMethod;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -125,7 +111,6 @@ class FaceProfile implements \Stringable
     public function setDeviceInfo(?array $deviceInfo): self
     {
         $this->deviceInfo = $deviceInfo;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -137,19 +122,17 @@ class FaceProfile implements \Stringable
     public function setStatus(FaceProfileStatus $status): self
     {
         $this->status = $status;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
-    public function getExpiresTime(): ?\DateTimeInterface
+    public function getExpiresTime(): ?\DateTimeImmutable
     {
         return $this->expiresTime;
     }
 
-    public function setExpiresTime(?\DateTimeInterface $expiresTime): self
+    public function setExpiresTime(?\DateTimeImmutable $expiresTime): self
     {
         $this->expiresTime = $expiresTime;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }/**
      * 检查人脸档案是否已过期
@@ -177,7 +160,6 @@ class FaceProfile implements \Stringable
     public function setExpiresAfter(\DateInterval $interval): self
     {
         $this->expiresTime = (new \DateTimeImmutable())->add($interval);
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 } 

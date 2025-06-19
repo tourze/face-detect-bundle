@@ -4,8 +4,6 @@ namespace Tourze\FaceDetectBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\FaceDetectBundle\Repository\StrategyRuleRepository;
 
@@ -23,8 +21,8 @@ class StrategyRule implements \Stringable
     use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::BIGINT)]
-    private readonly int $id;
+    #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: VerificationStrategy::class, inversedBy: 'rules')]
     #[ORM\JoinColumn(name: 'strategy_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
@@ -48,13 +46,6 @@ class StrategyRule implements \Stringable
     #[ORM\Column(type: Types::INTEGER, options: ['default' => 0, 'comment' => '规则优先级'])]
     private int $priority = 0;
 
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '创建时间'])]
-    private \DateTimeInterface $createTime;
-
-    #[UpdateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '更新时间'])]
-    private \DateTimeInterface $updateTime;
 
     public function __construct(string $ruleType, string $ruleName, array $conditions = [], array $actions = [])
     {
@@ -62,8 +53,6 @@ class StrategyRule implements \Stringable
         $this->ruleName = $ruleName;
         $this->conditions = $conditions;
         $this->actions = $actions;
-        $this->createTime = new \DateTimeImmutable();
-        $this->updateTime = new \DateTimeImmutable();
     }
 
     public function __toString(): string
@@ -71,7 +60,7 @@ class StrategyRule implements \Stringable
         return sprintf('StrategyRule[%d]: %s (%s)', $this->id ?? 0, $this->ruleName, $this->ruleType);
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -95,7 +84,6 @@ class StrategyRule implements \Stringable
     public function setRuleType(string $ruleType): self
     {
         $this->ruleType = $ruleType;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -107,7 +95,6 @@ class StrategyRule implements \Stringable
     public function setRuleName(string $ruleName): self
     {
         $this->ruleName = $ruleName;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -119,7 +106,6 @@ class StrategyRule implements \Stringable
     public function setConditions(array $conditions): self
     {
         $this->conditions = $conditions;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -131,7 +117,6 @@ class StrategyRule implements \Stringable
     public function setActions(array $actions): self
     {
         $this->actions = $actions;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -143,7 +128,6 @@ class StrategyRule implements \Stringable
     public function setEnabled(bool $isEnabled): self
     {
         $this->isEnabled = $isEnabled;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -155,7 +139,6 @@ class StrategyRule implements \Stringable
     public function setPriority(int $priority): self
     {
         $this->priority = $priority;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }/**
      * 获取条件值
@@ -171,7 +154,6 @@ class StrategyRule implements \Stringable
     public function setConditionValue(string $key, mixed $value): self
     {
         $this->conditions[$key] = $value;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -189,7 +171,6 @@ class StrategyRule implements \Stringable
     public function setActionValue(string $key, mixed $value): self
     {
         $this->actions[$key] = $value;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 

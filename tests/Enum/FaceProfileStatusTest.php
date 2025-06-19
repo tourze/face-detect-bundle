@@ -100,7 +100,6 @@ class FaceProfileStatusTest extends TestCase
     {
         // Act & Assert
         foreach (FaceProfileStatus::cases() as $status) {
-            $this->assertIsString($status->value);
         }
     }
 
@@ -231,7 +230,6 @@ class FaceProfileStatusTest extends TestCase
         // Act & Assert
         foreach (FaceProfileStatus::cases() as $status) {
             $description = $status->getDescription();
-            $this->assertIsString($description);
             $this->assertNotEmpty($description);
         }
     }

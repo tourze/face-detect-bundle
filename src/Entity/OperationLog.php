@@ -25,8 +25,8 @@ class OperationLog implements \Stringable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::BIGINT)]
-    private readonly int $id;
+    #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
+    private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false, options: ['comment' => '用户ID'])]
     private string $userId;
@@ -56,11 +56,11 @@ class OperationLog implements \Stringable
     private OperationStatus $status = OperationStatus::PENDING;
 
     #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '开始时间'])]
-    private \DateTimeInterface $startedTime;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['comment' => '开始时间'])]
+    private \DateTimeImmutable $startedTime;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '完成时间'])]
-    private ?\DateTimeInterface $completedTime = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '完成时间'])]
+    private ?\DateTimeImmutable $completedTime = null;
 
     public function __construct(string $userId, string $operationId, string $operationType)
     {
@@ -75,7 +75,7 @@ class OperationLog implements \Stringable
         return sprintf('OperationLog[%d]: %s - %s (%s)', $this->id ?? 0, $this->operationId, $this->operationType, $this->status->value);
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -170,12 +170,12 @@ class OperationLog implements \Stringable
         return $this;
     }
 
-    public function getStartedTime(): \DateTimeInterface
+    public function getStartedTime(): \DateTimeImmutable
     {
         return $this->startedTime;
     }
 
-    public function getCompletedTime(): ?\DateTimeInterface
+    public function getCompletedTime(): ?\DateTimeImmutable
     {
         return $this->completedTime;
     }

@@ -6,8 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\FaceDetectBundle\Repository\VerificationStrategyRepository;
 
@@ -25,8 +23,8 @@ class VerificationStrategy implements \Stringable
     use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::BIGINT)]
-    private readonly int $id;
+    #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
+    private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 128, nullable: false, options: ['comment' => '策略名称'])]
     private string $name;
@@ -46,13 +44,6 @@ class VerificationStrategy implements \Stringable
     #[ORM\Column(type: Types::JSON, nullable: false, options: ['comment' => '策略配置参数'])]
     private array $config = [];
 
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '创建时间'])]
-    private \DateTimeInterface $createTime;
-
-    #[UpdateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, options: ['comment' => '更新时间'])]
-    private \DateTimeInterface $updateTime;
 
     #[ORM\OneToMany(mappedBy: 'strategy', targetEntity: StrategyRule::class, cascade: ['persist', 'remove'], fetch: 'EXTRA_LAZY')]
     private Collection $rules;
@@ -65,8 +56,6 @@ class VerificationStrategy implements \Stringable
         $this->name = $name;
         $this->businessType = $businessType;
         $this->config = $config;
-        $this->createTime = new \DateTimeImmutable();
-        $this->updateTime = new \DateTimeImmutable();
         $this->rules = new ArrayCollection();
         $this->verificationRecords = new ArrayCollection();
     }
@@ -76,7 +65,7 @@ class VerificationStrategy implements \Stringable
         return sprintf('VerificationStrategy[%d]: %s (%s)', $this->id ?? 0, $this->name, $this->businessType);
     }
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -89,7 +78,6 @@ class VerificationStrategy implements \Stringable
     public function setName(string $name): self
     {
         $this->name = $name;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -101,7 +89,6 @@ class VerificationStrategy implements \Stringable
     public function setBusinessType(string $businessType): self
     {
         $this->businessType = $businessType;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -113,7 +100,6 @@ class VerificationStrategy implements \Stringable
     public function setDescription(?string $description): self
     {
         $this->description = $description;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -125,7 +111,6 @@ class VerificationStrategy implements \Stringable
     public function setEnabled(bool $isEnabled): self
     {
         $this->isEnabled = $isEnabled;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -137,7 +122,6 @@ class VerificationStrategy implements \Stringable
     public function setPriority(int $priority): self
     {
         $this->priority = $priority;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 
@@ -149,7 +133,6 @@ class VerificationStrategy implements \Stringable
     public function setConfig(array $config): self
     {
         $this->config = $config;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }public function getRules(): Collection
     {
@@ -194,7 +177,6 @@ class VerificationStrategy implements \Stringable
     public function setConfigValue(string $key, mixed $value): self
     {
         $this->config[$key] = $value;
-        $this->updateTime = new \DateTimeImmutable();
         return $this;
     }
 

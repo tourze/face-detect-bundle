@@ -28,8 +28,8 @@ class FaceProfileTest extends TestCase
         $this->assertSame('manual', $faceProfile->getCollectionMethod());
         $this->assertNull($faceProfile->getDeviceInfo());
         $this->assertNull($faceProfile->getExpiresTime());
-        $this->assertInstanceOf(\DateTimeInterface::class, $faceProfile->getCreateTime());
-        $this->assertInstanceOf(\DateTimeInterface::class, $faceProfile->getUpdateTime());
+        $this->assertNull($faceProfile->getCreateTime());
+        $this->assertNull($faceProfile->getUpdateTime());
     }
 
     public function test_construction_with_empty_user_id(): void
@@ -58,12 +58,10 @@ class FaceProfileTest extends TestCase
         $this->assertSame('', $faceProfile->getFaceFeatures());
     }
 
-    public function test_set_face_features_updates_data_and_timestamp(): void
+    public function test_set_face_features_updates_data(): void
     {
         // Arrange
         $faceProfile = new FaceProfile('user123', 'old_data');
-        $originalUpdateTime = $faceProfile->getUpdateTime();
-        usleep(1000); // 确保时间戳不同
 
         // Act
         $newFaceFeatures = 'new_encrypted_data';
@@ -71,7 +69,6 @@ class FaceProfileTest extends TestCase
 
         // Assert
         $this->assertSame($newFaceFeatures, $faceProfile->getFaceFeatures());
-        $this->assertGreaterThan($originalUpdateTime, $faceProfile->getUpdateTime());
     }
 
     public function test_set_quality_score_with_valid_values(): void
@@ -90,18 +87,16 @@ class FaceProfileTest extends TestCase
         $this->assertSame(0.85, $faceProfile->getQualityScore());
     }
 
-    public function test_set_quality_score_updates_timestamp(): void
+    public function test_set_quality_score_with_high_value(): void
     {
         // Arrange
         $faceProfile = new FaceProfile('user123', 'data');
-        $originalUpdateTime = $faceProfile->getUpdateTime();
-        usleep(1000);
 
         // Act
         $faceProfile->setQualityScore(0.95);
 
         // Assert
-        $this->assertGreaterThan($originalUpdateTime, $faceProfile->getUpdateTime());
+        $this->assertSame(0.95, $faceProfile->getQualityScore());
     }
 
     public function test_set_collection_method_with_valid_values(): void
@@ -361,39 +356,29 @@ class FaceProfileTest extends TestCase
         $this->assertStringContainsString($userId, $result);
     }
 
-    public function test_multiple_property_updates_affect_update_time(): void
+    public function test_multiple_property_updates(): void
     {
         // Arrange
         $faceProfile = new FaceProfile('user123', 'data');
-        $originalUpdateTime = $faceProfile->getUpdateTime();
-        usleep(1000);
 
         // Act - 多个属性修改
         $faceProfile->setQualityScore(0.8);
-        $firstUpdateTime = $faceProfile->getUpdateTime();
-        usleep(1000);
-        
         $faceProfile->setCollectionMethod('auto');
-        $secondUpdateTime = $faceProfile->getUpdateTime();
+        $faceProfile->setStatus(FaceProfileStatus::DISABLED);
 
         // Assert
-        $this->assertGreaterThan($originalUpdateTime, $firstUpdateTime);
-        $this->assertGreaterThan($firstUpdateTime, $secondUpdateTime);
+        $this->assertSame(0.8, $faceProfile->getQualityScore());
+        $this->assertSame('auto', $faceProfile->getCollectionMethod());
+        $this->assertSame(FaceProfileStatus::DISABLED, $faceProfile->getStatus());
     }
 
-    public function test_immutability_of_timestamps(): void
+    public function test_timestamps_are_initially_null(): void
     {
-        // Arrange
+        // Arrange & Act
         $faceProfile = new FaceProfile('user123', 'data');
-        $createTime = $faceProfile->getCreateTime();
-        $updateTime = $faceProfile->getUpdateTime();
 
-        // Act - 尝试修改时间戳对象
-        if ($createTime instanceof \DateTime) {
-            $createTime->modify('+1 day');
-        }
-
-        // Assert - 原始时间戳不应被影响
-        $this->assertEquals($createTime->getTimestamp(), $faceProfile->getCreateTime()->getTimestamp());
+        // Assert
+        $this->assertNull($faceProfile->getCreateTime());
+        $this->assertNull($faceProfile->getUpdateTime());
     }
 } 

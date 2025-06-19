@@ -57,7 +57,7 @@ class VerificationRecordTest extends TestCase
         $this->assertNull($record->getClientInfo());
         $this->assertNull($record->getErrorCode());
         $this->assertNull($record->getErrorMessage());
-        $this->assertInstanceOf(\DateTimeInterface::class, $record->getCreateTime());
+        $this->assertNull($record->getCreateTime());
     }
 
     /**
@@ -552,22 +552,15 @@ class VerificationRecordTest extends TestCase
     }
 
     /**
-     * 测试时间戳的不可变性
+     * 测试时间戳的初始值
      */
-    public function testTimestampImmutability(): void
+    public function testTimestampInitialValues(): void
     {
         // Arrange
         $record = new VerificationRecord('user123', $this->mockStrategy, 'test', VerificationResult::SUCCESS);
-        $createTime = $record->getCreateTime();
 
-        // Act & Assert - 验证返回的是DateTimeImmutable
-        $this->assertInstanceOf(\DateTimeImmutable::class, $createTime);
-        
-        // 验证时间戳值是合理的
-        $this->assertLessThanOrEqual(new \DateTimeImmutable(), $createTime);
-        
-        // 验证多次调用返回相同的时间戳
-        $this->assertEquals($createTime, $record->getCreateTime());
+        // Act & Assert - 新创建的实体时间戳应该为null，直到被持久化
+        $this->assertNull($record->getCreateTime());
     }
 
     /**

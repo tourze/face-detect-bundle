@@ -2,21 +2,26 @@
 
 namespace Tourze\FaceDetectBundle\Enum;
 
+use Tourze\EnumExtra\Itemable;
+use Tourze\EnumExtra\ItemTrait;
+use Tourze\EnumExtra\Labelable;
+use Tourze\EnumExtra\Selectable;
+use Tourze\EnumExtra\SelectTrait;
+
 /**
  * 操作状态枚举
  */
-enum OperationStatus: string
+enum OperationStatus: string implements Itemable, Labelable, Selectable
 {
+    use ItemTrait;
+    use SelectTrait;
     case PENDING = 'pending';        // 等待中
     case PROCESSING = 'processing';  // 处理中
     case COMPLETED = 'completed';    // 已完成
     case FAILED = 'failed';          // 失败
     case CANCELLED = 'cancelled';    // 已取消
 
-    /**
-     * 获取状态描述
-     */
-    public function getDescription(): string
+    public function getLabel(): string
     {
         return match($this) {
             self::PENDING => '等待中',
@@ -25,6 +30,14 @@ enum OperationStatus: string
             self::FAILED => '失败',
             self::CANCELLED => '已取消',
         };
+    }
+
+    /**
+     * 获取状态描述
+     */
+    public function getDescription(): string
+    {
+        return $this->getLabel();
     }
 
     /**

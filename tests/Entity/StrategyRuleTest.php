@@ -37,8 +37,8 @@ class StrategyRuleTest extends TestCase
         $this->assertTrue($rule->isEnabled());
         $this->assertSame(0, $rule->getPriority());
         $this->assertNull($rule->getStrategy());
-        $this->assertInstanceOf(\DateTimeInterface::class, $rule->getCreateTime());
-        $this->assertInstanceOf(\DateTimeInterface::class, $rule->getUpdateTime());
+        $this->assertNull($rule->getCreateTime());
+        $this->assertNull($rule->getUpdateTime());
     }
 
     /**
@@ -145,16 +145,12 @@ class StrategyRuleTest extends TestCase
     }
 
     /**
-     * 测试规则类型设置和更新时间变化
+     * 测试规则类型设置
      */
-    public function testSetRuleTypeUpdatesTimestamp(): void
+    public function testSetRuleType(): void
     {
         // Arrange
         $rule = new StrategyRule('time', 'Test Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
-        
-        // 确保时间有差异
-        usleep(1000);
 
         // Act
         $result = $rule->setRuleType('frequency');
@@ -162,19 +158,15 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result); // 测试链式调用
         $this->assertSame('frequency', $rule->getRuleType());
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
-     * 测试规则名称设置和更新时间变化
+     * 测试规则名称设置
      */
-    public function testSetRuleNameUpdatesTimestamp(): void
+    public function testSetRuleName(): void
     {
         // Arrange
         $rule = new StrategyRule('risk', 'Original Name');
-        $originalUpdateTime = $rule->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setRuleName('Updated Name');
@@ -182,20 +174,16 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertSame('Updated Name', $rule->getRuleName());
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
-     * 测试条件设置和更新时间变化
+     * 测试条件设置
      */
-    public function testSetConditionsUpdatesTimestamp(): void
+    public function testSetConditions(): void
     {
         // Arrange
         $rule = new StrategyRule('amount', 'Amount Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
         $newConditions = ['min_amount' => 100, 'max_amount' => 10000];
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setConditions($newConditions);
@@ -203,20 +191,16 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertSame($newConditions, $rule->getConditions());
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
-     * 测试动作设置和更新时间变化
+     * 测试动作设置
      */
-    public function testSetActionsUpdatesTimestamp(): void
+    public function testSetActions(): void
     {
         // Arrange
         $rule = new StrategyRule('frequency', 'Rate Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
         $newActions = ['block' => true, 'wait_seconds' => 60];
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setActions($newActions);
@@ -224,19 +208,15 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertSame($newActions, $rule->getActions());
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
-     * 测试启用状态设置和更新时间变化
+     * 测试启用状态设置
      */
-    public function testSetEnabledUpdatesTimestamp(): void
+    public function testSetEnabled(): void
     {
         // Arrange
         $rule = new StrategyRule('time', 'Time Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setEnabled(false);
@@ -244,19 +224,15 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertFalse($rule->isEnabled());
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
-     * 测试优先级设置和更新时间变化
+     * 测试优先级设置
      */
-    public function testSetPriorityUpdatesTimestamp(): void
+    public function testSetPriority(): void
     {
         // Arrange
         $rule = new StrategyRule('risk', 'Risk Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setPriority(100);
@@ -264,7 +240,6 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertSame(100, $rule->getPriority());
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
@@ -312,15 +287,12 @@ class StrategyRuleTest extends TestCase
     }
 
     /**
-     * 测试设置条件值和更新时间变化
+     * 测试设置条件值
      */
-    public function testSetConditionValueUpdatesTimestamp(): void
+    public function testSetConditionValue(): void
     {
         // Arrange
         $rule = new StrategyRule('time', 'Time Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setConditionValue('start_time', '09:00');
@@ -328,7 +300,6 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertSame('09:00', $rule->getConditionValue('start_time'));
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
@@ -380,15 +351,12 @@ class StrategyRuleTest extends TestCase
     }
 
     /**
-     * 测试设置动作值和更新时间变化
+     * 测试设置动作值
      */
-    public function testSetActionValueUpdatesTimestamp(): void
+    public function testSetActionValue(): void
     {
         // Arrange
         $rule = new StrategyRule('frequency', 'Rate Rule');
-        $originalUpdateTime = $rule->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $rule->setActionValue('block', true);
@@ -396,7 +364,6 @@ class StrategyRuleTest extends TestCase
         // Assert
         $this->assertSame($rule, $result);
         $this->assertTrue($rule->getActionValue('block'));
-        $this->assertGreaterThan($originalUpdateTime, $rule->getUpdateTime());
     }
 
     /**
@@ -572,26 +539,15 @@ class StrategyRuleTest extends TestCase
     }
 
     /**
-     * 测试时间戳的不可变性
+     * 测试时间戳初始值
      */
-    public function testTimestampImmutability(): void
+    public function testTimestampInitialValues(): void
     {
         // Arrange
         $rule = new StrategyRule('time', 'Time Rule');
-        $createTime = $rule->getCreateTime();
-        $updateTime = $rule->getUpdateTime();
 
-        // Act - 因为实体使用DateTimeImmutable，时间戳本身就是不可变的
-        // 我们验证获取的时间戳对象确实是DateTimeImmutable
-        $this->assertInstanceOf(\DateTimeImmutable::class, $createTime);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $updateTime);
-        
-        // 验证时间戳值是合理的
-        $this->assertLessThanOrEqual(new \DateTimeImmutable(), $createTime);
-        $this->assertLessThanOrEqual(new \DateTimeImmutable(), $updateTime);
-        
-        // 验证多次调用返回相同的时间戳
-        $this->assertEquals($createTime, $rule->getCreateTime());
-        $this->assertEquals($updateTime, $rule->getUpdateTime());
+        // Assert - 新创建的实体时间戳应该为null，直到被持久化
+        $this->assertNull($rule->getCreateTime());
+        $this->assertNull($rule->getUpdateTime());
     }
 } 

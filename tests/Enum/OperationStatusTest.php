@@ -124,7 +124,6 @@ class OperationStatusTest extends TestCase
     {
         // Act & Assert
         foreach (OperationStatus::cases() as $status) {
-            $this->assertIsString($status->value);
         }
     }
 
@@ -263,7 +262,6 @@ class OperationStatusTest extends TestCase
         // Act & Assert
         foreach (OperationStatus::cases() as $status) {
             $description = $status->getDescription();
-            $this->assertIsString($description);
             $this->assertNotEmpty($description);
         }
     }

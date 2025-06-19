@@ -41,8 +41,8 @@ class VerificationStrategyTest extends TestCase
         $this->assertNull($strategy->getDescription());
         $this->assertTrue($strategy->isEnabled());
         $this->assertSame(0, $strategy->getPriority());
-        $this->assertInstanceOf(\DateTimeInterface::class, $strategy->getCreateTime());
-        $this->assertInstanceOf(\DateTimeInterface::class, $strategy->getUpdateTime());
+        $this->assertNull($strategy->getCreateTime());
+        $this->assertNull($strategy->getUpdateTime());
         $this->assertInstanceOf(ArrayCollection::class, $strategy->getRules());
         $this->assertInstanceOf(ArrayCollection::class, $strategy->getVerificationRecords());
         $this->assertCount(0, $strategy->getRules());
@@ -121,15 +121,12 @@ class VerificationStrategyTest extends TestCase
     }
 
     /**
-     * 测试名称设置和更新时间变化
+     * 测试名称设置
      */
-    public function testSetNameUpdatesTimestamp(): void
+    public function testSetName(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Original Name', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $strategy->setName('Updated Name');
@@ -137,19 +134,15 @@ class VerificationStrategyTest extends TestCase
         // Assert
         $this->assertSame($strategy, $result); // 链式调用
         $this->assertSame('Updated Name', $strategy->getName());
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
     }
 
     /**
-     * 测试业务类型设置和更新时间变化
+     * 测试业务类型设置
      */
-    public function testSetBusinessTypeUpdatesTimestamp(): void
+    public function testSetBusinessType(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $strategy->setBusinessType('payment');
@@ -157,25 +150,20 @@ class VerificationStrategyTest extends TestCase
         // Assert
         $this->assertSame($strategy, $result);
         $this->assertSame('payment', $strategy->getBusinessType());
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
     }
 
     /**
-     * 测试描述设置和更新时间变化
+     * 测试描述设置
      */
-    public function testSetDescriptionUpdatesTimestamp(): void
+    public function testSetDescription(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
-        
-        usleep(1000);
 
         // Act & Assert - 设置描述
         $result = $strategy->setDescription('This is a test strategy');
         $this->assertSame($strategy, $result);
         $this->assertSame('This is a test strategy', $strategy->getDescription());
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
 
         // Act & Assert - 设置为null
         $strategy->setDescription(null);
@@ -183,15 +171,12 @@ class VerificationStrategyTest extends TestCase
     }
 
     /**
-     * 测试启用状态设置和更新时间变化
+     * 测试启用状态设置
      */
-    public function testSetEnabledUpdatesTimestamp(): void
+    public function testSetEnabled(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $strategy->setEnabled(false);
@@ -199,19 +184,15 @@ class VerificationStrategyTest extends TestCase
         // Assert
         $this->assertSame($strategy, $result);
         $this->assertFalse($strategy->isEnabled());
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
     }
 
     /**
-     * 测试优先级设置和更新时间变化
+     * 测试优先级设置
      */
-    public function testSetPriorityUpdatesTimestamp(): void
+    public function testSetPriority(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $strategy->setPriority(100);
@@ -219,7 +200,6 @@ class VerificationStrategyTest extends TestCase
         // Assert
         $this->assertSame($strategy, $result);
         $this->assertSame(100, $strategy->getPriority());
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
     }
 
     /**
@@ -244,16 +224,13 @@ class VerificationStrategyTest extends TestCase
     }
 
     /**
-     * 测试配置设置和更新时间变化
+     * 测试配置设置
      */
-    public function testSetConfigUpdatesTimestamp(): void
+    public function testSetConfig(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
         $newConfig = ['timeout' => 60, 'retries' => 5];
-        
-        usleep(1000);
 
         // Act
         $result = $strategy->setConfig($newConfig);
@@ -261,7 +238,6 @@ class VerificationStrategyTest extends TestCase
         // Assert
         $this->assertSame($strategy, $result);
         $this->assertSame($newConfig, $strategy->getConfig());
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
     }
 
     /**
@@ -318,15 +294,12 @@ class VerificationStrategyTest extends TestCase
     }
 
     /**
-     * 测试设置配置值和更新时间变化
+     * 测试设置配置值
      */
-    public function testSetConfigValueUpdatesTimestamp(): void
+    public function testSetConfigValue(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $originalUpdateTime = $strategy->getUpdateTime();
-        
-        usleep(1000);
 
         // Act
         $result = $strategy->setConfigValue('new_key', 'new_value');
@@ -334,7 +307,6 @@ class VerificationStrategyTest extends TestCase
         // Assert
         $this->assertSame($strategy, $result); // 链式调用
         $this->assertSame('new_value', $strategy->getConfigValue('new_key'));
-        $this->assertGreaterThan($originalUpdateTime, $strategy->getUpdateTime());
     }
 
     /**
@@ -611,26 +583,16 @@ class VerificationStrategyTest extends TestCase
     }
 
     /**
-     * 测试时间戳的不可变性
+     * 测试时间戳的初始值
      */
-    public function testTimestampImmutability(): void
+    public function testTimestampInitialValues(): void
     {
         // Arrange
         $strategy = new VerificationStrategy('Test Strategy', 'login');
-        $createTime = $strategy->getCreateTime();
-        $updateTime = $strategy->getUpdateTime();
 
-        // Act & Assert - 验证返回的是DateTimeImmutable
-        $this->assertInstanceOf(\DateTimeImmutable::class, $createTime);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $updateTime);
-        
-        // 验证时间戳值是合理的
-        $this->assertLessThanOrEqual(new \DateTimeImmutable(), $createTime);
-        $this->assertLessThanOrEqual(new \DateTimeImmutable(), $updateTime);
-        
-        // 验证多次调用返回相同的时间戳
-        $this->assertEquals($createTime, $strategy->getCreateTime());
-        $this->assertEquals($updateTime, $strategy->getUpdateTime());
+        // Act & Assert - 新创建的实体时间戳应该为null，直到被持久化
+        $this->assertNull($strategy->getCreateTime());
+        $this->assertNull($strategy->getUpdateTime());
     }
 
     /**

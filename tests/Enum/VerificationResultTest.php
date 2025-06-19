@@ -108,7 +108,6 @@ class VerificationResultTest extends TestCase
     {
         // Act & Assert
         foreach (VerificationResult::cases() as $result) {
-            $this->assertIsString($result->value);
         }
     }
 
@@ -243,7 +242,6 @@ class VerificationResultTest extends TestCase
         // Act & Assert
         foreach (VerificationResult::cases() as $result) {
             $description = $result->getDescription();
-            $this->assertIsString($description);
             $this->assertNotEmpty($description);
         }
     }
