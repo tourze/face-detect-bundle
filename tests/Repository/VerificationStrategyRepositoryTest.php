@@ -34,7 +34,7 @@ class VerificationStrategyRepositoryTest extends TestCase
     public function test_find_enabled_by_business_type_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findEnabledByBusinessType'));
+        // 验证findEnabledByBusinessType方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findEnabledByBusinessType');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -42,16 +42,16 @@ class VerificationStrategyRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('businessType', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_name_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByName'));
+        // 验证findByName方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByName');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -59,7 +59,7 @@ class VerificationStrategyRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('name', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
@@ -69,7 +69,7 @@ class VerificationStrategyRepositoryTest extends TestCase
     public function test_find_highest_priority_by_business_type_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findHighestPriorityByBusinessType'));
+        // 验证findHighestPriorityByBusinessType方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findHighestPriorityByBusinessType');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -77,7 +77,7 @@ class VerificationStrategyRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('businessType', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
@@ -87,20 +87,20 @@ class VerificationStrategyRepositoryTest extends TestCase
     public function test_find_all_enabled_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findAllEnabled'));
+        // 验证findAllEnabled方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findAllEnabled');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(0, $reflectionMethod->getParameters());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_priority_range_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByPriorityRange'));
+        // 验证findByPriorityRange方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByPriorityRange');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -108,33 +108,33 @@ class VerificationStrategyRepositoryTest extends TestCase
         
         $minParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('minPriority', $minParam->getName());
-        $this->assertSame('int', $minParam->getType()->getName());
+        $this->assertSame('int', (string) $minParam->getType());
         
         $maxParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('maxPriority', $maxParam->getName());
-        $this->assertSame('int', $maxParam->getType()->getName());
+        $this->assertSame('int', (string) $maxParam->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_count_by_business_type_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'countByBusinessType'));
+        // 验证countByBusinessType方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'countByBusinessType');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(0, $reflectionMethod->getParameters());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_config_key_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByConfigKey'));
+        // 验证findByConfigKey方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByConfigKey');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -142,16 +142,16 @@ class VerificationStrategyRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('configKey', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_update_enabled_status_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'updateEnabledStatus'));
+        // 验证updateEnabledStatus方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'updateEnabledStatus');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -159,33 +159,33 @@ class VerificationStrategyRepositoryTest extends TestCase
         
         $idsParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('strategyIds', $idsParam->getName());
-        $this->assertSame('array', $idsParam->getType()->getName());
+        $this->assertSame('array', (string) $idsParam->getType());
         
         $enabledParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('enabled', $enabledParam->getName());
-        $this->assertSame('bool', $enabledParam->getType()->getName());
+        $this->assertSame('bool', (string) $enabledParam->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('int', $returnType->getName());
+        $this->assertSame('int', (string) $returnType);
     }
 
     public function test_get_statistics_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'getStatistics'));
+        // 验证getStatistics方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'getStatistics');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(0, $reflectionMethod->getParameters());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_for_update_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findForUpdate'));
+        // 验证findForUpdate方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findForUpdate');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -198,7 +198,7 @@ class VerificationStrategyRepositoryTest extends TestCase
         $this->assertNull($parameter->getDefaultValue());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_all_required_methods_exist_and_are_public(): void
@@ -381,7 +381,7 @@ class VerificationStrategyRepositoryTest extends TestCase
         $this->assertCount(1, $parameters);
         $parameter = $parameters[0];
         $this->assertSame('registry', $parameter->getName());
-        $this->assertSame('Doctrine\Persistence\ManagerRegistry', $parameter->getType()->getName());
+        $this->assertSame('Doctrine\Persistence\ManagerRegistry', (string) $parameter->getType());
     }
 
     public function test_class_is_instantiable(): void
@@ -420,7 +420,7 @@ class VerificationStrategyRepositoryTest extends TestCase
             $this->assertNotNull($returnType, "Method $methodName should have return type");
             
             if (isset($expectations['type'])) {
-                $this->assertSame($expectations['type'], $returnType->getName(), "Method $methodName return type mismatch");
+                $this->assertSame($expectations['type'], (string) $returnType, "Method $methodName return type mismatch");
             }
             
             if (isset($expectations['nullable'])) {

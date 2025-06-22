@@ -68,7 +68,7 @@ class BaiduAiException extends FaceDetectException
     public static function fromBaiduError(int $baiduErrorCode, string $baiduErrorMsg = ''): self
     {
         $code = self::BAIDU_ERROR_MAPPING[$baiduErrorCode] ?? self::ERROR_API_REQUEST_FAILED;
-        $message = !empty($baiduErrorMsg) ? $baiduErrorMsg : self::ERROR_MESSAGES[$code];
+        $message = !empty($baiduErrorMsg) ? $baiduErrorMsg : (self::ERROR_MESSAGES[$code] ?? '未知错误');
 
         return new self(
             "百度API错误 [{$baiduErrorCode}]: {$message}",

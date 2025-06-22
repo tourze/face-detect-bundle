@@ -17,7 +17,7 @@ interface FaceCollectionServiceInterface
 
     /**
      * 采集用户人脸信息
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $imageData 人脸图片数据（base64编码）
      * @param array $deviceInfo 设备信息
@@ -34,7 +34,7 @@ interface FaceCollectionServiceInterface
 
     /**
      * 重新采集用户人脸信息
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $imageData 人脸图片数据（base64编码）
      * @param array $deviceInfo 设备信息
@@ -49,7 +49,7 @@ interface FaceCollectionServiceInterface
 
     /**
      * 获取用户人脸档案
-     * 
+     *
      * @param string $userId 用户ID
      * @return FaceProfile|null 人脸档案，不存在时返回null
      */
@@ -57,7 +57,7 @@ interface FaceCollectionServiceInterface
 
     /**
      * 检查人脸档案是否可用
-     * 
+     *
      * @param string $userId 用户ID
      * @return bool 是否可用
      */
@@ -65,7 +65,7 @@ interface FaceCollectionServiceInterface
 
     /**
      * 删除用户人脸信息
-     * 
+     *
      * @param string $userId 用户ID
      * @return bool 删除是否成功
      */
@@ -73,14 +73,14 @@ interface FaceCollectionServiceInterface
 
     /**
      * 批量处理过期的人脸档案
-     * 
+     *
      * @return int 处理的档案数量
      */
     public function processExpiredProfiles(): int;
 
     /**
      * 验证人脸图片质量
-     * 
+     *
      * @param string $imageData 人脸图片数据（base64编码）
      * @return array 质量检测结果
      * @throws FaceDetectException 检测失败时抛出异常

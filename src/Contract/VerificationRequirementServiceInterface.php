@@ -12,7 +12,7 @@ interface VerificationRequirementServiceInterface
 {
     /**
      * 检查是否需要人脸验证
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $businessType 业务类型
      * @param array $context 业务上下文
@@ -27,7 +27,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 获取验证类型
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $businessType 业务类型
      * @param array $context 业务上下文
@@ -42,7 +42,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 获取验证策略配置
-     * 
+     *
      * @param string $businessType 业务类型
      * @return array 策略配置
      */
@@ -50,7 +50,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 检查用户验证历史
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $businessType 业务类型
      * @param \DateTimeInterface|null $since 起始时间
@@ -64,7 +64,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 检查是否满足验证频率限制
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $businessType 业务类型
      * @return bool 是否满足频率限制
@@ -76,7 +76,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 检查是否在验证时间窗口内
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $businessType 业务类型
      * @return bool 是否在时间窗口内
@@ -88,7 +88,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 评估验证风险等级
-     * 
+     *
      * @param string $userId 用户ID
      * @param string $businessType 业务类型
      * @param array $context 业务上下文
@@ -102,7 +102,7 @@ interface VerificationRequirementServiceInterface
 
     /**
      * 获取验证配置参数
-     * 
+     *
      * @param string $businessType 业务类型
      * @param string $configKey 配置键
      * @param mixed $default 默认值

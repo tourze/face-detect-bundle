@@ -77,12 +77,6 @@ class VerificationTypeTest extends TestCase
         $this->assertTrue(VerificationType::FORCED->isMandatory());
     }
 
-    public function test_enum_values_are_strings(): void
-    {
-        // Act & Assert
-        foreach (VerificationType::cases() as $type) {
-        }
-    }
 
     public function test_enum_values_are_unique(): void
     {
@@ -132,15 +126,15 @@ class VerificationTypeTest extends TestCase
     public function test_enum_comparison(): void
     {
         // Arrange
-        $required1 = VerificationType::REQUIRED;
-        $required2 = VerificationType::REQUIRED;
+        $required = VerificationType::REQUIRED;
         $optional = VerificationType::OPTIONAL;
 
         // Act & Assert
-        $this->assertTrue($required1 === $required2);
-        $this->assertFalse($required1 === $optional);
-        $this->assertTrue($required1 == $required2);
-        $this->assertFalse($required1 == $optional);
+        // 枚举是单例的，相同的枚举值总是相同的实例
+        $this->assertSame($required, VerificationType::REQUIRED);
+        $this->assertNotSame($required, $optional);
+        $this->assertEquals($required->value, 'required');
+        $this->assertNotEquals($required->value, $optional->value);
     }
 
     public function test_enum_serialization(): void
@@ -185,9 +179,9 @@ class VerificationTypeTest extends TestCase
         $types = [VerificationType::REQUIRED, VerificationType::FORCED];
 
         // Act & Assert
-        $this->assertTrue(in_array(VerificationType::REQUIRED, $types, true));
-        $this->assertTrue(in_array(VerificationType::FORCED, $types, true));
-        $this->assertFalse(in_array(VerificationType::OPTIONAL, $types, true));
+        $this->assertContains(VerificationType::REQUIRED, $types);
+        $this->assertContains(VerificationType::FORCED, $types);
+        $this->assertNotContains(VerificationType::OPTIONAL, $types);
     }
 
     public function test_enum_in_match_expression(): void

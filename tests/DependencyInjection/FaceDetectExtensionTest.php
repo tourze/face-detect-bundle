@@ -2,9 +2,7 @@
 
 namespace Tourze\FaceDetectBundle\Tests\DependencyInjection;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Tourze\FaceDetectBundle\DependencyInjection\FaceDetectExtension;
 
@@ -14,12 +12,10 @@ use Tourze\FaceDetectBundle\DependencyInjection\FaceDetectExtension;
 class FaceDetectExtensionTest extends TestCase
 {
     private FaceDetectExtension $extension;
-    private ContainerBuilder&MockObject $container;
 
     protected function setUp(): void
     {
         $this->extension = new FaceDetectExtension();
-        $this->container = $this->createMock(ContainerBuilder::class);
     }
 
     public function test_extension_can_be_instantiated(): void
@@ -47,7 +43,7 @@ class FaceDetectExtensionTest extends TestCase
     public function test_extension_has_load_method(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->extension, 'load'));
+        // 验证load方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->extension, 'load');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -55,14 +51,17 @@ class FaceDetectExtensionTest extends TestCase
         
         $configsParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('configs', $configsParam->getName());
-        $this->assertSame('array', $configsParam->getType()->getName());
+        $this->assertSame('array', (string) $configsParam->getType());
         
         $containerParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('container', $containerParam->getName());
-        $this->assertSame('Symfony\Component\DependencyInjection\ContainerBuilder', $containerParam->getType()->getName());
+        $containerType = $containerParam->getType();
+        $this->assertNotNull($containerType);
+        $this->assertSame('Symfony\Component\DependencyInjection\ContainerBuilder', (string) $containerType);
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('void', $returnType->getName());
+        $this->assertNotNull($returnType);
+        $this->assertSame('void', (string) $returnType);
     }
 
     public function test_load_method_parameter_validation(): void
@@ -203,8 +202,8 @@ class FaceDetectExtensionTest extends TestCase
         
         if ($parentReturnType !== null) {
             $this->assertSame(
-                $parentReturnType->getName(),
-                $childReturnType?->getName(),
+                (string) $parentReturnType,
+                $childReturnType ? (string) $childReturnType : null,
                 'load method should have same return type as parent'
             );
         } else {

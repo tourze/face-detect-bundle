@@ -35,7 +35,7 @@ class StrategyRuleRepositoryTest extends TestCase
     public function test_find_enabled_by_strategy_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findEnabledByStrategy'));
+        // 验证findEnabledByStrategy方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findEnabledByStrategy');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -43,16 +43,16 @@ class StrategyRuleRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('strategy', $parameter->getName());
-        $this->assertSame('Tourze\FaceDetectBundle\Entity\VerificationStrategy', $parameter->getType()->getName());
+        $this->assertSame('Tourze\FaceDetectBundle\Entity\VerificationStrategy', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_rule_type_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByRuleType'));
+        // 验证findByRuleType方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByRuleType');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -60,16 +60,16 @@ class StrategyRuleRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('ruleType', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_strategy_and_type_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByStrategyAndType'));
+        // 验证findByStrategyAndType方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByStrategyAndType');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -77,20 +77,20 @@ class StrategyRuleRepositoryTest extends TestCase
         
         $strategyParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('strategy', $strategyParam->getName());
-        $this->assertSame('Tourze\FaceDetectBundle\Entity\VerificationStrategy', $strategyParam->getType()->getName());
+        $this->assertSame('Tourze\FaceDetectBundle\Entity\VerificationStrategy', (string) $strategyParam->getType());
         
         $ruleTypeParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('ruleType', $ruleTypeParam->getName());
-        $this->assertSame('string', $ruleTypeParam->getType()->getName());
+        $this->assertSame('string', (string) $ruleTypeParam->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_highest_priority_by_strategy_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findHighestPriorityByStrategy'));
+        // 验证findHighestPriorityByStrategy方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findHighestPriorityByStrategy');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -98,7 +98,7 @@ class StrategyRuleRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('strategy', $parameter->getName());
-        $this->assertSame('Tourze\FaceDetectBundle\Entity\VerificationStrategy', $parameter->getType()->getName());
+        $this->assertSame('Tourze\FaceDetectBundle\Entity\VerificationStrategy', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
@@ -108,14 +108,14 @@ class StrategyRuleRepositoryTest extends TestCase
     public function test_get_statistics_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'getStatistics'));
+        // 验证getStatistics方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'getStatistics');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(0, $reflectionMethod->getParameters());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_all_required_methods_exist_and_are_public(): void
@@ -245,7 +245,7 @@ class StrategyRuleRepositoryTest extends TestCase
         $this->assertCount(1, $parameters);
         $parameter = $parameters[0];
         $this->assertSame('registry', $parameter->getName());
-        $this->assertSame('Doctrine\Persistence\ManagerRegistry', $parameter->getType()->getName());
+        $this->assertSame('Doctrine\Persistence\ManagerRegistry', (string) $parameter->getType());
     }
 
     public function test_class_is_instantiable(): void
@@ -279,7 +279,7 @@ class StrategyRuleRepositoryTest extends TestCase
             $this->assertNotNull($returnType, "Method $methodName should have return type");
             
             if (isset($expectations['type'])) {
-                $this->assertSame($expectations['type'], $returnType->getName(), "Method $methodName return type mismatch");
+                $this->assertSame($expectations['type'], (string) $returnType, "Method $methodName return type mismatch");
             }
             
             if (isset($expectations['nullable'])) {

@@ -359,7 +359,8 @@ class FaceCollectionExceptionTest extends TestCase
 
         // Act & Assert
         foreach ($errorCodes as $code) {
-            $this->assertIsInt($code, '错误码应该是整数');
+            $this->assertGreaterThan(2000, $code);
+            $this->assertLessThan(3000, $code);
         }
     }
 

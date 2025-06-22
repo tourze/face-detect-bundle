@@ -34,7 +34,7 @@ class VerificationRecordRepositoryTest extends TestCase
     public function test_find_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByUserId'));
+        // 验证findByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -42,22 +42,22 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $userIdParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $userIdParam->getName());
-        $this->assertSame('string', $userIdParam->getType()->getName());
+        $this->assertSame('string', (string) $userIdParam->getType());
         
         $limitParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('limit', $limitParam->getName());
-        $this->assertSame('int', $limitParam->getType()->getName());
+        $this->assertSame('int', (string) $limitParam->getType());
         $this->assertTrue($limitParam->isDefaultValueAvailable());
         $this->assertSame(10, $limitParam->getDefaultValue());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_operation_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByOperationId'));
+        // 验证findByOperationId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByOperationId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -65,16 +65,16 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('operationId', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_last_successful_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findLastSuccessfulByUserId'));
+        // 验证findLastSuccessfulByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findLastSuccessfulByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -82,7 +82,7 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
@@ -92,7 +92,7 @@ class VerificationRecordRepositoryTest extends TestCase
     public function test_count_by_user_id_and_time_range_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'countByUserIdAndTimeRange'));
+        // 验证countByUserIdAndTimeRange方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'countByUserIdAndTimeRange');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -100,24 +100,24 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $userIdParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $userIdParam->getName());
-        $this->assertSame('string', $userIdParam->getType()->getName());
+        $this->assertSame('string', (string) $userIdParam->getType());
         
         $startParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('start', $startParam->getName());
-        $this->assertSame('DateTimeInterface', $startParam->getType()->getName());
+        $this->assertSame('DateTimeInterface', (string) $startParam->getType());
         
         $endParam = $reflectionMethod->getParameters()[2];
         $this->assertSame('end', $endParam->getName());
-        $this->assertSame('DateTimeInterface', $endParam->getType()->getName());
+        $this->assertSame('DateTimeInterface', (string) $endParam->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('int', $returnType->getName());
+        $this->assertSame('int', (string) $returnType);
     }
 
     public function test_count_successful_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'countSuccessfulByUserId'));
+        // 验证countSuccessfulByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'countSuccessfulByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -125,7 +125,7 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $userIdParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $userIdParam->getName());
-        $this->assertSame('string', $userIdParam->getType()->getName());
+        $this->assertSame('string', (string) $userIdParam->getType());
         
         $sinceParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('since', $sinceParam->getName());
@@ -134,13 +134,13 @@ class VerificationRecordRepositoryTest extends TestCase
         $this->assertNull($sinceParam->getDefaultValue());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('int', $returnType->getName());
+        $this->assertSame('int', (string) $returnType);
     }
 
     public function test_count_by_business_type_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'countByBusinessType'));
+        // 验证countByBusinessType方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'countByBusinessType');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -148,16 +148,16 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('businessType', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_by_time_range_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByTimeRange'));
+        // 验证findByTimeRange方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByTimeRange');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -165,20 +165,20 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $startParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('start', $startParam->getName());
-        $this->assertSame('DateTimeInterface', $startParam->getType()->getName());
+        $this->assertSame('DateTimeInterface', (string) $startParam->getType());
         
         $endParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('end', $endParam->getName());
-        $this->assertSame('DateTimeInterface', $endParam->getType()->getName());
+        $this->assertSame('DateTimeInterface', (string) $endParam->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_find_low_confidence_records_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findLowConfidenceRecords'));
+        // 验证findLowConfidenceRecords方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findLowConfidenceRecords');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -186,31 +186,31 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('threshold', $parameter->getName());
-        $this->assertSame('float', $parameter->getType()->getName());
+        $this->assertSame('float', (string) $parameter->getType());
         $this->assertTrue($parameter->isDefaultValueAvailable());
         $this->assertSame(0.7, $parameter->getDefaultValue());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_get_statistics_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'getStatistics'));
+        // 验证getStatistics方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'getStatistics');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(0, $reflectionMethod->getParameters());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_delete_old_records_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'deleteOldRecords'));
+        // 验证deleteOldRecords方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'deleteOldRecords');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -218,10 +218,10 @@ class VerificationRecordRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('before', $parameter->getName());
-        $this->assertSame('DateTimeInterface', $parameter->getType()->getName());
+        $this->assertSame('DateTimeInterface', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('int', $returnType->getName());
+        $this->assertSame('int', (string) $returnType);
     }
 
     public function test_all_required_methods_exist_and_are_public(): void
@@ -378,7 +378,7 @@ class VerificationRecordRepositoryTest extends TestCase
         $this->assertCount(1, $parameters);
         $parameter = $parameters[0];
         $this->assertSame('registry', $parameter->getName());
-        $this->assertSame('Doctrine\Persistence\ManagerRegistry', $parameter->getType()->getName());
+        $this->assertSame('Doctrine\Persistence\ManagerRegistry', (string) $parameter->getType());
     }
 
     public function test_class_is_instantiable(): void
@@ -417,7 +417,7 @@ class VerificationRecordRepositoryTest extends TestCase
             $this->assertNotNull($returnType, "Method $methodName should have return type");
             
             if (isset($expectations['type'])) {
-                $this->assertSame($expectations['type'], $returnType->getName(), "Method $methodName return type mismatch");
+                $this->assertSame($expectations['type'], (string) $returnType, "Method $methodName return type mismatch");
             }
             
             if (isset($expectations['nullable'])) {

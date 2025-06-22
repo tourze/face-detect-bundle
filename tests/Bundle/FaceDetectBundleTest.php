@@ -50,10 +50,10 @@ class FaceDetectBundleTest extends TestCase
 
     public function test_bundle_inherits_bundle_methods(): void
     {
-        // Assert - 验证Bundle基类的核心方法存在
-        $this->assertTrue(method_exists($this->bundle, 'getName'));
-        $this->assertTrue(method_exists($this->bundle, 'getNamespace'));
-        $this->assertTrue(method_exists($this->bundle, 'getPath'));
+        // Assert - 验证Bundle基类的核心方法可以正常调用
+        $this->assertNotEmpty($this->bundle->getName());
+        $this->assertNotEmpty($this->bundle->getNamespace());
+        $this->assertNotEmpty($this->bundle->getPath());
     }
 
     public function test_bundle_name_follows_symfony_convention(): void

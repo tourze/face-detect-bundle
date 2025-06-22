@@ -104,12 +104,6 @@ class VerificationResultTest extends TestCase
         $this->assertTrue(VerificationResult::TIMEOUT->isFailure());
     }
 
-    public function test_enum_values_are_strings(): void
-    {
-        // Act & Assert
-        foreach (VerificationResult::cases() as $result) {
-        }
-    }
 
     public function test_enum_values_are_unique(): void
     {
@@ -161,15 +155,15 @@ class VerificationResultTest extends TestCase
     public function test_enum_comparison(): void
     {
         // Arrange
-        $success1 = VerificationResult::SUCCESS;
-        $success2 = VerificationResult::SUCCESS;
+        $success = VerificationResult::SUCCESS;
         $failed = VerificationResult::FAILED;
 
         // Act & Assert
-        $this->assertTrue($success1 === $success2);
-        $this->assertFalse($success1 === $failed);
-        $this->assertTrue($success1 == $success2);
-        $this->assertFalse($success1 == $failed);
+        // 枚举是单例的，相同的枚举值总是相同的实例
+        $this->assertSame($success, VerificationResult::SUCCESS);
+        $this->assertNotSame($success, $failed);
+        $this->assertEquals($success->value, 'success');
+        $this->assertNotEquals($success->value, $failed->value);
     }
 
     public function test_enum_serialization(): void
@@ -215,9 +209,9 @@ class VerificationResultTest extends TestCase
         $results = [VerificationResult::SUCCESS, VerificationResult::SKIPPED];
 
         // Act & Assert
-        $this->assertTrue(in_array(VerificationResult::SUCCESS, $results, true));
-        $this->assertTrue(in_array(VerificationResult::SKIPPED, $results, true));
-        $this->assertFalse(in_array(VerificationResult::FAILED, $results, true));
+        $this->assertContains(VerificationResult::SUCCESS, $results);
+        $this->assertContains(VerificationResult::SKIPPED, $results);
+        $this->assertNotContains(VerificationResult::FAILED, $results);
     }
 
     public function test_enum_in_match_expression(): void

@@ -120,12 +120,6 @@ class OperationStatusTest extends TestCase
         $this->assertFalse(OperationStatus::CANCELLED->isSuccessful());
     }
 
-    public function test_enum_values_are_strings(): void
-    {
-        // Act & Assert
-        foreach (OperationStatus::cases() as $status) {
-        }
-    }
 
     public function test_enum_values_are_unique(): void
     {
@@ -179,15 +173,15 @@ class OperationStatusTest extends TestCase
     public function test_enum_comparison(): void
     {
         // Arrange
-        $pending1 = OperationStatus::PENDING;
-        $pending2 = OperationStatus::PENDING;
+        $pending = OperationStatus::PENDING;
         $completed = OperationStatus::COMPLETED;
 
         // Act & Assert
-        $this->assertTrue($pending1 === $pending2);
-        $this->assertFalse($pending1 === $completed);
-        $this->assertTrue($pending1 == $pending2);
-        $this->assertFalse($pending1 == $completed);
+        // 枚举是单例的，相同的枚举值总是相同的实例
+        $this->assertSame($pending, OperationStatus::PENDING);
+        $this->assertNotSame($pending, $completed);
+        $this->assertEquals($pending->value, 'pending');
+        $this->assertNotEquals($pending->value, $completed->value);
     }
 
     public function test_enum_serialization(): void
@@ -234,9 +228,9 @@ class OperationStatusTest extends TestCase
         $statuses = [OperationStatus::PENDING, OperationStatus::PROCESSING];
 
         // Act & Assert
-        $this->assertTrue(in_array(OperationStatus::PENDING, $statuses, true));
-        $this->assertTrue(in_array(OperationStatus::PROCESSING, $statuses, true));
-        $this->assertFalse(in_array(OperationStatus::COMPLETED, $statuses, true));
+        $this->assertContains(OperationStatus::PENDING, $statuses);
+        $this->assertContains(OperationStatus::PROCESSING, $statuses);
+        $this->assertNotContains(OperationStatus::COMPLETED, $statuses);
     }
 
     public function test_enum_in_match_expression(): void

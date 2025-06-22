@@ -96,12 +96,6 @@ class FaceProfileStatusTest extends TestCase
         }
     }
 
-    public function test_enum_values_are_strings(): void
-    {
-        // Act & Assert
-        foreach (FaceProfileStatus::cases() as $status) {
-        }
-    }
 
     public function test_enum_values_are_unique(): void
     {
@@ -152,14 +146,14 @@ class FaceProfileStatusTest extends TestCase
     {
         // Arrange
         $active1 = FaceProfileStatus::ACTIVE;
-        $active2 = FaceProfileStatus::ACTIVE;
         $expired = FaceProfileStatus::EXPIRED;
 
         // Act & Assert
-        $this->assertTrue($active1 === $active2);
-        $this->assertFalse($active1 === $expired);
-        $this->assertTrue($active1 == $active2);
-        $this->assertFalse($active1 == $expired);
+        // 枚举是单例的，相同的枚举值总是相同的实例
+        $this->assertSame($active1, FaceProfileStatus::ACTIVE);
+        $this->assertNotSame($active1, $expired);
+        $this->assertEquals($active1->value, 'active');
+        $this->assertNotEquals($active1->value, $expired->value);
     }
 
     public function test_enum_serialization(): void
@@ -204,9 +198,9 @@ class FaceProfileStatusTest extends TestCase
         $statuses = [FaceProfileStatus::ACTIVE, FaceProfileStatus::EXPIRED];
 
         // Act & Assert
-        $this->assertTrue(in_array(FaceProfileStatus::ACTIVE, $statuses, true));
-        $this->assertTrue(in_array(FaceProfileStatus::EXPIRED, $statuses, true));
-        $this->assertFalse(in_array(FaceProfileStatus::DISABLED, $statuses, true));
+        $this->assertContains(FaceProfileStatus::ACTIVE, $statuses);
+        $this->assertContains(FaceProfileStatus::EXPIRED, $statuses);
+        $this->assertNotContains(FaceProfileStatus::DISABLED, $statuses);
     }
 
     public function test_enum_in_match_expression(): void
@@ -269,9 +263,9 @@ class FaceProfileStatusTest extends TestCase
         $status = FaceProfileStatus::ACTIVE;
 
         // Act & Assert
-        $this->assertTrue(method_exists($status, 'getDescription'));
-        $this->assertTrue(method_exists($status, 'isUsable'));
-        $this->assertIsString($status->getDescription());
-        $this->assertIsBool($status->isUsable());
+        // 验证方法可以正常调用并返回预期类型
+        $this->assertNotEmpty($status->getDescription());
+        $this->assertSame('活跃', $status->getDescription());
+        $this->assertTrue($status->isUsable());
     }
 } 

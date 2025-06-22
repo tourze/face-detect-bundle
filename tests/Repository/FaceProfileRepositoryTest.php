@@ -34,7 +34,7 @@ class FaceProfileRepositoryTest extends TestCase
     public function test_find_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByUserId'));
+        // 验证findByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -42,7 +42,7 @@ class FaceProfileRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
@@ -52,7 +52,7 @@ class FaceProfileRepositoryTest extends TestCase
     public function test_find_available_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findAvailableByUserId'));
+        // 验证findAvailableByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findAvailableByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -60,7 +60,7 @@ class FaceProfileRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
@@ -70,7 +70,7 @@ class FaceProfileRepositoryTest extends TestCase
     public function test_find_expired_profiles_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findExpiredProfiles'));
+        // 验证findExpiredProfiles方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findExpiredProfiles');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -83,13 +83,13 @@ class FaceProfileRepositoryTest extends TestCase
         $this->assertNull($parameter->getDefaultValue());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_count_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'countByUserId'));
+        // 验证countByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'countByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -97,23 +97,23 @@ class FaceProfileRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('int', $returnType->getName());
+        $this->assertSame('int', (string) $returnType);
     }
 
     public function test_get_statistics_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'getStatistics'));
+        // 验证getStatistics方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'getStatistics');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(0, $reflectionMethod->getParameters());
         
         $returnType = $reflectionMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_all_required_methods_exist_and_are_public(): void
@@ -177,7 +177,7 @@ class FaceProfileRepositoryTest extends TestCase
         $this->assertCount(1, $parameters);
         $parameter = $parameters[0];
         $this->assertSame('registry', $parameter->getName());
-        $this->assertSame('Doctrine\Persistence\ManagerRegistry', $parameter->getType()->getName());
+        $this->assertSame('Doctrine\Persistence\ManagerRegistry', (string) $parameter->getType());
     }
 
     public function test_class_is_instantiable(): void

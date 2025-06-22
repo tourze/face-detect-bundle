@@ -2,6 +2,7 @@
 
 namespace Tourze\FaceDetectBundle\Tests\Repository;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,7 @@ class OperationLogRepositoryTest extends TestCase
     public function test_find_by_operation_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByOperationId'));
+        // 验证findByOperationId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByOperationId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -42,13 +43,13 @@ class OperationLogRepositoryTest extends TestCase
         
         $parameter = $reflectionMethod->getParameters()[0];
         $this->assertSame('operationId', $parameter->getName());
-        $this->assertSame('string', $parameter->getType()->getName());
+        $this->assertSame('string', (string) $parameter->getType());
     }
 
     public function test_find_by_user_id_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findByUserId'));
+        // 验证findByUserId方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findByUserId');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -56,11 +57,11 @@ class OperationLogRepositoryTest extends TestCase
         
         $userIdParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('userId', $userIdParam->getName());
-        $this->assertSame('string', $userIdParam->getType()->getName());
+        $this->assertSame('string', (string) $userIdParam->getType());
         
         $limitParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('limit', $limitParam->getName());
-        $this->assertSame('int', $limitParam->getType()->getName());
+        $this->assertSame('int', (string) $limitParam->getType());
         $this->assertTrue($limitParam->isDefaultValueAvailable());
         $this->assertSame(10, $limitParam->getDefaultValue());
     }
@@ -68,7 +69,7 @@ class OperationLogRepositoryTest extends TestCase
     public function test_find_pending_verification_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'findPendingVerification'));
+        // 验证findPendingVerification方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'findPendingVerification');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -84,7 +85,7 @@ class OperationLogRepositoryTest extends TestCase
     public function test_get_statistics_method_exists(): void
     {
         // Assert
-        $this->assertTrue(method_exists($this->repository, 'getStatistics'));
+        // 验证getStatistics方法的签名
         
         $reflectionMethod = new \ReflectionMethod($this->repository, 'getStatistics');
         $this->assertTrue($reflectionMethod->isPublic());
@@ -170,7 +171,7 @@ class OperationLogRepositoryTest extends TestCase
     {
         // Assert - 验证Repository类可以被实例化和使用
         $this->assertInstanceOf(OperationLogRepository::class, $this->repository);
-        $this->assertTrue($this->repository instanceof OperationLogRepository);
+        $this->assertInstanceOf(ServiceEntityRepository::class, $this->repository);
     }
 
     public function test_repository_manages_correct_entity(): void
@@ -194,15 +195,15 @@ class OperationLogRepositoryTest extends TestCase
         
         $findByUserIdMethod = new \ReflectionMethod($this->repository, 'findByUserId');
         $returnType = $findByUserIdMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
         
         $findPendingVerificationMethod = new \ReflectionMethod($this->repository, 'findPendingVerification');
         $returnType = $findPendingVerificationMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
         
         $getStatisticsMethod = new \ReflectionMethod($this->repository, 'getStatistics');
         $returnType = $getStatisticsMethod->getReturnType();
-        $this->assertSame('array', $returnType->getName());
+        $this->assertSame('array', (string) $returnType);
     }
 
     public function test_all_required_methods_exist_and_are_public(): void
@@ -291,7 +292,7 @@ class OperationLogRepositoryTest extends TestCase
         $this->assertCount(1, $parameters);
         $parameter = $parameters[0];
         $this->assertSame('registry', $parameter->getName());
-        $this->assertSame('Doctrine\Persistence\ManagerRegistry', $parameter->getType()->getName());
+        $this->assertSame('Doctrine\Persistence\ManagerRegistry', (string) $parameter->getType());
     }
 
     public function test_class_is_final_or_can_be_extended(): void
