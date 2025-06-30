@@ -10,7 +10,7 @@ use Tourze\FaceDetectBundle\Exception\VerificationException;
 
 /**
  * VerificationException 异常类单元测试
- * 
+ *
  * 测试人脸验证异常类的核心功能：
  * - 构造函数和错误码映射
  * - 工厂方法创建特定异常

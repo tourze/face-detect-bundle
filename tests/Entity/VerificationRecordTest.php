@@ -12,7 +12,7 @@ use Tourze\FaceDetectBundle\Enum\VerificationType;
 
 /**
  * VerificationRecord 实体单元测试
- * 
+ *
  * 测试验证记录实体的核心功能：
  * - 构造函数和基本属性
  * - 验证结果和类型管理

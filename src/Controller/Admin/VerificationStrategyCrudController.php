@@ -79,7 +79,7 @@ class VerificationStrategyCrudController extends AbstractCrudController
             });
 
         yield CodeEditorField::new('config', '策略配置')
-            ->setLanguage('json')
+            ->setLanguage('javascript')
             ->hideOnIndex()
             ->setHelp('JSON格式的策略配置参数')
             ->formatValue(function ($value) {

@@ -6,7 +6,7 @@ namespace Tourze\FaceDetectBundle\Contract;
 
 /**
  * 百度AI客户端接口
- * 
+ *
  * 封装百度人脸识别API调用，提供统一的接口抽象
  */
 interface BaiduAiClientInterface

@@ -44,21 +44,21 @@ class FaceDetectExtensionTest extends TestCase
     {
         // Assert
         // 验证load方法的签名
-        
+
         $reflectionMethod = new \ReflectionMethod($this->extension, 'load');
         $this->assertTrue($reflectionMethod->isPublic());
         $this->assertCount(2, $reflectionMethod->getParameters());
-        
+
         $configsParam = $reflectionMethod->getParameters()[0];
         $this->assertSame('configs', $configsParam->getName());
         $this->assertSame('array', (string) $configsParam->getType());
-        
+
         $containerParam = $reflectionMethod->getParameters()[1];
         $this->assertSame('container', $containerParam->getName());
         $containerType = $containerParam->getType();
         $this->assertNotNull($containerType);
         $this->assertSame('Symfony\Component\DependencyInjection\ContainerBuilder', (string) $containerType);
-        
+
         $returnType = $reflectionMethod->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertSame('void', (string) $returnType);
@@ -79,10 +79,10 @@ class FaceDetectExtensionTest extends TestCase
     {
         // Assert
         $reflectionClass = new \ReflectionClass($this->extension);
-        
+
         // Extension类名应该以Extension结尾
         $this->assertStringEndsWith('Extension', $reflectionClass->getShortName());
-        
+
         // Extension应该在DependencyInjection命名空间下
         $this->assertStringContainsString('DependencyInjection', $reflectionClass->getNamespaceName());
     }
@@ -100,13 +100,13 @@ class FaceDetectExtensionTest extends TestCase
     {
         // Assert - 验证Extension类可以被DI容器使用
         $reflectionClass = new \ReflectionClass($this->extension);
-        
+
         // 应该是具体类（非抽象）
         $this->assertFalse($reflectionClass->isAbstract());
-        
+
         // 应该可以实例化
         $this->assertTrue($reflectionClass->isInstantiable());
-        
+
         // 应该不是接口
         $this->assertFalse($reflectionClass->isInterface());
     }
@@ -116,7 +116,7 @@ class FaceDetectExtensionTest extends TestCase
         // Assert
         $reflectionMethod = new \ReflectionMethod($this->extension, 'load');
         $docComment = $reflectionMethod->getDocComment();
-        
+
         // 如果没有文档注释，这是可以接受的，因为这是一个简单的实现
         $this->assertTrue(
             $docComment === false || strpos($docComment, '/**') !== false,
@@ -157,7 +157,7 @@ class FaceDetectExtensionTest extends TestCase
         // Assert
         $reflectionClass = new \ReflectionClass($this->extension);
         $constructor = $reflectionClass->getConstructor();
-        
+
         if ($constructor !== null) {
             $this->assertCount(0, $constructor->getParameters(), 'Extension constructor should have no parameters');
         } else {
@@ -170,15 +170,15 @@ class FaceDetectExtensionTest extends TestCase
     {
         // Assert
         $reflectionClass = new \ReflectionClass($this->extension);
-        
+
         // 应该只有一个公开方法（load）
         $publicMethods = array_filter(
             $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC),
             fn($method) => $method->getDeclaringClass()->getName() === $reflectionClass->getName()
         );
-        
+
         $this->assertCount(1, $publicMethods, 'Extension should have only one public method (load)');
-        
+
         $method = reset($publicMethods);
         $this->assertSame('load', $method->getName());
     }
@@ -188,22 +188,22 @@ class FaceDetectExtensionTest extends TestCase
         // Assert
         $reflectionMethod = new \ReflectionMethod($this->extension, 'load');
         $parentMethod = new \ReflectionMethod(Extension::class, 'load');
-        
+
         // 参数数量应该匹配
         $this->assertCount(
             count($parentMethod->getParameters()),
             $reflectionMethod->getParameters(),
             'load method should have same parameter count as parent'
         );
-        
+
         // 检查返回类型（parent可能没有明确的返回类型声明）
         $parentReturnType = $parentMethod->getReturnType();
         $childReturnType = $reflectionMethod->getReturnType();
-        
+
         if ($parentReturnType !== null) {
             $this->assertSame(
                 (string) $parentReturnType,
-                $childReturnType ? (string) $childReturnType : null,
+                $childReturnType !== null ? (string) $childReturnType : null,
                 'load method should have same return type as parent'
             );
         } else {
@@ -211,4 +211,4 @@ class FaceDetectExtensionTest extends TestCase
             $this->assertTrue(true, 'Parent has no return type, child can define more specific type');
         }
     }
-} 
+}

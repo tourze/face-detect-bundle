@@ -10,7 +10,7 @@ use Tourze\FaceDetectBundle\Exception\FaceDetectException;
 
 /**
  * BaiduAiException 异常类单元测试
- * 
+ *
  * 测试百度AI异常类的核心功能：
  * - 构造函数和错误码映射
  * - 百度API错误码转换
@@ -132,7 +132,7 @@ class BaiduAiExceptionTest extends TestCase
         // Act & Assert
         foreach ($testCases as [$baiduCode, $expectedCode]) {
             $exception = BaiduAiException::fromBaiduError($baiduCode);
-            
+
             $this->assertInstanceOf(BaiduAiException::class, $exception);
             $this->assertSame($expectedCode, $exception->getCode());
             $this->assertStringContainsString("百度API错误 [{$baiduCode}]", $exception->getMessage());
@@ -389,7 +389,9 @@ class BaiduAiExceptionTest extends TestCase
 
         // Act & Assert
         foreach ($errorCodes as $code) {
-            $this->assertIsInt($code, '错误码应该是整数');
+            // 验证错误码是有效的整数范围
+            $this->assertGreaterThan(0, $code, '错误码应该是正整数');
+            $this->assertLessThan(10000, $code, '错误码应该在合理范围内');
         }
     }
 
@@ -485,4 +487,4 @@ class BaiduAiExceptionTest extends TestCase
             $this->assertInstanceOf(\Throwable::class, $exception);
         }
     }
-} 
+}

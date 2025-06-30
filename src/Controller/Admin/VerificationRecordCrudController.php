@@ -109,7 +109,7 @@ class VerificationRecordCrudController extends AbstractCrudController
             });
 
         yield CodeEditorField::new('clientInfo', '客户端信息')
-            ->setLanguage('json')
+            ->setLanguage('javascript')
             ->hideOnIndex()
             ->setRequired(false)
             ->setHelp('客户端设备和环境信息')

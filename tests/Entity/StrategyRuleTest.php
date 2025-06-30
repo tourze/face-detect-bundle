@@ -10,7 +10,7 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
 
 /**
  * StrategyRule 实体单元测试
- * 
+ *
  * 测试策略规则实体的核心功能：
  * - 构造函数和基本属性
  * - 规则条件和动作管理

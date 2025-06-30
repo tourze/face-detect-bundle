@@ -14,15 +14,15 @@ class OperationStatusTest extends TestCase
     {
         // Act & Assert
         $this->assertTrue(enum_exists(OperationStatus::class));
-        
+
         $cases = OperationStatus::cases();
         $this->assertCount(5, $cases);
-        
+
         $caseValues = [];
         foreach ($cases as $case) {
             $caseValues[] = $case->value;
         }
-        
+
         $this->assertContains('pending', $caseValues);
         $this->assertContains('processing', $caseValues);
         $this->assertContains('completed', $caseValues);
@@ -235,20 +235,26 @@ class OperationStatusTest extends TestCase
 
     public function test_enum_in_match_expression(): void
     {
-        // Arrange
-        $status = OperationStatus::COMPLETED;
+        // Arrange & Act & Assert
+        foreach (OperationStatus::cases() as $status) {
+            $result = match ($status) {
+                OperationStatus::PENDING => 'pending_result',
+                OperationStatus::PROCESSING => 'processing_result',
+                OperationStatus::COMPLETED => 'completed_result',
+                OperationStatus::FAILED => 'failed_result',
+                OperationStatus::CANCELLED => 'cancelled_result',
+            };
 
-        // Act
-        $result = match($status) {
-            OperationStatus::PENDING => 'pending_result',
-            OperationStatus::PROCESSING => 'processing_result',
-            OperationStatus::COMPLETED => 'completed_result',
-            OperationStatus::FAILED => 'failed_result',
-            OperationStatus::CANCELLED => 'cancelled_result',
-        };
+            $expectedResult = match ($status) {
+                OperationStatus::PENDING => 'pending_result',
+                OperationStatus::PROCESSING => 'processing_result',
+                OperationStatus::COMPLETED => 'completed_result',
+                OperationStatus::FAILED => 'failed_result',
+                OperationStatus::CANCELLED => 'cancelled_result',
+            };
 
-        // Assert
-        $this->assertSame('completed_result', $result);
+            $this->assertSame($expectedResult, $result);
+        }
     }
 
     public function test_all_cases_have_descriptions(): void
@@ -315,13 +321,13 @@ class OperationStatusTest extends TestCase
         // 只有已完成状态是成功的
         $this->assertTrue(OperationStatus::COMPLETED->isSuccessful());
         $this->assertTrue(OperationStatus::COMPLETED->isFinal());
-        
+
         // 失败和取消是终态但不成功
         $this->assertTrue(OperationStatus::FAILED->isFinal());
         $this->assertFalse(OperationStatus::FAILED->isSuccessful());
         $this->assertTrue(OperationStatus::CANCELLED->isFinal());
         $this->assertFalse(OperationStatus::CANCELLED->isSuccessful());
-        
+
         // 等待和处理中不是终态也不成功
         $this->assertFalse(OperationStatus::PENDING->isFinal());
         $this->assertFalse(OperationStatus::PENDING->isSuccessful());
@@ -334,13 +340,13 @@ class OperationStatusTest extends TestCase
         // Assert - 测试状态转换的逻辑性
         $nonFinalStates = [OperationStatus::PENDING, OperationStatus::PROCESSING];
         $finalStates = [OperationStatus::COMPLETED, OperationStatus::FAILED, OperationStatus::CANCELLED];
-        
+
         foreach ($nonFinalStates as $state) {
             $this->assertFalse($state->isFinal(), "非终态 {$state->value} 不应该是终态");
         }
-        
+
         foreach ($finalStates as $state) {
             $this->assertTrue($state->isFinal(), "终态 {$state->value} 应该是终态");
         }
     }
-} 
+}

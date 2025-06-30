@@ -14,15 +14,15 @@ class VerificationResultTest extends TestCase
     {
         // Act & Assert
         $this->assertTrue(enum_exists(VerificationResult::class));
-        
+
         $cases = VerificationResult::cases();
         $this->assertCount(4, $cases);
-        
+
         $caseValues = [];
         foreach ($cases as $case) {
             $caseValues[] = $case->value;
         }
-        
+
         $this->assertContains('success', $caseValues);
         $this->assertContains('failed', $caseValues);
         $this->assertContains('skipped', $caseValues);
@@ -216,19 +216,24 @@ class VerificationResultTest extends TestCase
 
     public function test_enum_in_match_expression(): void
     {
-        // Arrange
-        $result = VerificationResult::TIMEOUT;
+        // Arrange & Act & Assert
+        foreach (VerificationResult::cases() as $result) {
+            $matchResult = match ($result) {
+                VerificationResult::SUCCESS => 'success_result',
+                VerificationResult::FAILED => 'failed_result',
+                VerificationResult::SKIPPED => 'skipped_result',
+                VerificationResult::TIMEOUT => 'timeout_result',
+            };
 
-        // Act
-        $matchResult = match($result) {
-            VerificationResult::SUCCESS => 'success_result',
-            VerificationResult::FAILED => 'failed_result',
-            VerificationResult::SKIPPED => 'skipped_result',
-            VerificationResult::TIMEOUT => 'timeout_result',
-        };
+            $expectedResult = match ($result) {
+                VerificationResult::SUCCESS => 'success_result',
+                VerificationResult::FAILED => 'failed_result',
+                VerificationResult::SKIPPED => 'skipped_result',
+                VerificationResult::TIMEOUT => 'timeout_result',
+            };
 
-        // Assert
-        $this->assertSame('timeout_result', $matchResult);
+            $this->assertSame($expectedResult, $matchResult);
+        }
     }
 
     public function test_all_cases_have_descriptions(): void
@@ -295,13 +300,13 @@ class VerificationResultTest extends TestCase
         // 成功结果不应该是失败
         $this->assertTrue(VerificationResult::SUCCESS->isSuccessful());
         $this->assertFalse(VerificationResult::SUCCESS->isFailure());
-        
+
         // 失败和超时都是失败，但不成功
         $this->assertTrue(VerificationResult::FAILED->isFailure());
         $this->assertFalse(VerificationResult::FAILED->isSuccessful());
         $this->assertTrue(VerificationResult::TIMEOUT->isFailure());
         $this->assertFalse(VerificationResult::TIMEOUT->isSuccessful());
-        
+
         // 跳过既不成功也不失败
         $this->assertFalse(VerificationResult::SKIPPED->isSuccessful());
         $this->assertFalse(VerificationResult::SKIPPED->isFailure());
@@ -313,17 +318,17 @@ class VerificationResultTest extends TestCase
         $successResults = [VerificationResult::SUCCESS];
         $failureResults = [VerificationResult::FAILED, VerificationResult::TIMEOUT];
         $neutralResults = [VerificationResult::SKIPPED];
-        
+
         foreach ($successResults as $result) {
             $this->assertTrue($result->isSuccessful(), "成功结果 {$result->value} 应该是成功的");
             $this->assertFalse($result->isFailure(), "成功结果 {$result->value} 不应该是失败的");
         }
-        
+
         foreach ($failureResults as $result) {
             $this->assertFalse($result->isSuccessful(), "失败结果 {$result->value} 不应该是成功的");
             $this->assertTrue($result->isFailure(), "失败结果 {$result->value} 应该是失败的");
         }
-        
+
         foreach ($neutralResults as $result) {
             $this->assertFalse($result->isSuccessful(), "中性结果 {$result->value} 不应该是成功的");
             $this->assertFalse($result->isFailure(), "中性结果 {$result->value} 不应该是失败的");
@@ -334,11 +339,11 @@ class VerificationResultTest extends TestCase
     {
         // Arrange
         $allResults = VerificationResult::cases();
-        
+
         // Act
         $successfulResults = array_filter($allResults, fn($result) => $result->isSuccessful());
         $nonSuccessfulResults = array_filter($allResults, fn($result) => !$result->isSuccessful());
-        
+
         // Assert
         $this->assertCount(1, $successfulResults);
         $this->assertCount(3, $nonSuccessfulResults);
@@ -349,15 +354,15 @@ class VerificationResultTest extends TestCase
     {
         // Arrange
         $allResults = VerificationResult::cases();
-        
+
         // Act
         $failureResults = array_filter($allResults, fn($result) => $result->isFailure());
         $nonFailureResults = array_filter($allResults, fn($result) => !$result->isFailure());
-        
+
         // Assert
         $this->assertCount(2, $failureResults);
         $this->assertCount(2, $nonFailureResults);
         $this->assertContains(VerificationResult::FAILED, $failureResults);
         $this->assertContains(VerificationResult::TIMEOUT, $failureResults);
     }
-} 
+}

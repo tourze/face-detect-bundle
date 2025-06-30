@@ -80,7 +80,7 @@ class StrategyRuleCrudController extends AbstractCrudController
             ->setHelp('规则的描述性名称');
 
         yield CodeEditorField::new('conditions', '规则条件')
-            ->setLanguage('json')
+            ->setLanguage('javascript')
             ->hideOnIndex()
             ->setHelp('JSON格式的规则条件配置')
             ->formatValue(function ($value) {
@@ -88,7 +88,7 @@ class StrategyRuleCrudController extends AbstractCrudController
             });
 
         yield CodeEditorField::new('actions', '规则动作')
-            ->setLanguage('json')
+            ->setLanguage('javascript')
             ->hideOnIndex()
             ->setHelp('JSON格式的规则动作配置')
             ->formatValue(function ($value) {

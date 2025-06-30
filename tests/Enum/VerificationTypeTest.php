@@ -14,15 +14,15 @@ class VerificationTypeTest extends TestCase
     {
         // Act & Assert
         $this->assertTrue(enum_exists(VerificationType::class));
-        
+
         $cases = VerificationType::cases();
         $this->assertCount(3, $cases);
-        
+
         $caseValues = [];
         foreach ($cases as $case) {
             $caseValues[] = $case->value;
         }
-        
+
         $this->assertContains('required', $caseValues);
         $this->assertContains('optional', $caseValues);
         $this->assertContains('forced', $caseValues);
@@ -186,18 +186,22 @@ class VerificationTypeTest extends TestCase
 
     public function test_enum_in_match_expression(): void
     {
-        // Arrange
-        $type = VerificationType::FORCED;
+        // Arrange & Act & Assert
+        foreach (VerificationType::cases() as $type) {
+            $result = match ($type) {
+                VerificationType::REQUIRED => 'required_result',
+                VerificationType::OPTIONAL => 'optional_result',
+                VerificationType::FORCED => 'forced_result',
+            };
 
-        // Act
-        $result = match($type) {
-            VerificationType::REQUIRED => 'required_result',
-            VerificationType::OPTIONAL => 'optional_result',
-            VerificationType::FORCED => 'forced_result',
-        };
+            $expectedResult = match ($type) {
+                VerificationType::REQUIRED => 'required_result',
+                VerificationType::OPTIONAL => 'optional_result',
+                VerificationType::FORCED => 'forced_result',
+            };
 
-        // Assert
-        $this->assertSame('forced_result', $result);
+            $this->assertSame($expectedResult, $result);
+        }
     }
 
     public function test_all_cases_have_descriptions(): void
@@ -243,7 +247,7 @@ class VerificationTypeTest extends TestCase
         // REQUIRED 和 FORCED 都是强制的
         $this->assertTrue(VerificationType::REQUIRED->isMandatory());
         $this->assertTrue(VerificationType::FORCED->isMandatory());
-        
+
         // OPTIONAL 不是强制的
         $this->assertFalse(VerificationType::OPTIONAL->isMandatory());
     }
@@ -253,11 +257,11 @@ class VerificationTypeTest extends TestCase
         // Assert - 测试类型分类的正确性
         $mandatoryTypes = [VerificationType::REQUIRED, VerificationType::FORCED];
         $optionalTypes = [VerificationType::OPTIONAL];
-        
+
         foreach ($mandatoryTypes as $type) {
             $this->assertTrue($type->isMandatory(), "强制类型 {$type->value} 应该是强制的");
         }
-        
+
         foreach ($optionalTypes as $type) {
             $this->assertFalse($type->isMandatory(), "可选类型 {$type->value} 不应该是强制的");
         }
@@ -267,11 +271,11 @@ class VerificationTypeTest extends TestCase
     {
         // Arrange
         $allTypes = VerificationType::cases();
-        
+
         // Act
         $mandatoryTypes = array_filter($allTypes, fn($type) => $type->isMandatory());
         $nonMandatoryTypes = array_filter($allTypes, fn($type) => !$type->isMandatory());
-        
+
         // Assert
         $this->assertCount(2, $mandatoryTypes);
         $this->assertCount(1, $nonMandatoryTypes);
@@ -285,10 +289,10 @@ class VerificationTypeTest extends TestCase
         // Assert - 测试验证要求级别
         // FORCED 应该是最高级别的要求
         $this->assertTrue(VerificationType::FORCED->isMandatory());
-        
+
         // REQUIRED 是标准要求
         $this->assertTrue(VerificationType::REQUIRED->isMandatory());
-        
+
         // OPTIONAL 是最低级别
         $this->assertFalse(VerificationType::OPTIONAL->isMandatory());
     }
@@ -298,12 +302,12 @@ class VerificationTypeTest extends TestCase
         // Assert - 验证枚举覆盖了必要的验证类型
         $cases = VerificationType::cases();
         $values = array_map(fn($case) => $case->value, $cases);
-        
+
         // 必须包含基础的验证类型
         $this->assertContains('required', $values, '应该包含必需验证类型');
         $this->assertContains('optional', $values, '应该包含可选验证类型');
         $this->assertContains('forced', $values, '应该包含强制验证类型');
-        
+
         // 验证类型数量合理
         $this->assertGreaterThanOrEqual(3, count($values), '应该至少有3种验证类型');
         $this->assertLessThanOrEqual(5, count($values), '验证类型不应该过多');
@@ -312,14 +316,14 @@ class VerificationTypeTest extends TestCase
     public function test_enum_semantics_are_meaningful(): void
     {
         // Assert - 验证枚举语义的合理性
-        
+
         // 检查描述文本是否有意义
         foreach (VerificationType::cases() as $type) {
             $description = $type->getDescription();
             $this->assertStringContainsString('验证', $description, '描述应包含"验证"关键词');
             $this->assertGreaterThan(2, mb_strlen($description), '描述应该有足够的长度');
         }
-        
+
         // 检查强制性逻辑是否合理
         $mandatoryCount = 0;
         foreach (VerificationType::cases() as $type) {
@@ -327,8 +331,8 @@ class VerificationTypeTest extends TestCase
                 $mandatoryCount++;
             }
         }
-        
+
         $this->assertGreaterThan(0, $mandatoryCount, '至少应该有一种强制类型');
         $this->assertLessThan(count(VerificationType::cases()), $mandatoryCount, '不应该所有类型都是强制的');
     }
-} 
+}

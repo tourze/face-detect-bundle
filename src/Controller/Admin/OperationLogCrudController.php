@@ -72,7 +72,7 @@ class OperationLogCrudController extends AbstractCrudController
             ->setHelp('业务操作的分类类型');
 
         yield CodeEditorField::new('businessContext', '业务上下文')
-            ->setLanguage('json')
+            ->setLanguage('javascript')
             ->hideOnIndex()
             ->setRequired(false)
             ->setHelp('操作相关的业务上下文信息')

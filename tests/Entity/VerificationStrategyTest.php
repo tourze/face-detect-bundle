@@ -11,7 +11,7 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
 
 /**
  * VerificationStrategy 实体单元测试
- * 
+ *
  * 测试验证策略实体的核心功能：
  * - 构造函数和基本属性
  * - 策略配置管理

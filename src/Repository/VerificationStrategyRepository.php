@@ -11,7 +11,7 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
 /**
  * 验证策略仓储类
  * 负责验证策略数据的查询和管理操作
- * 
+ *
  * @method VerificationStrategy|null find($id, $lockMode = null, $lockVersion = null)
  * @method VerificationStrategy|null findOneBy(array $criteria, array $orderBy = null)
  * @method VerificationStrategy[]    findAll()

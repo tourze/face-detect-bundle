@@ -14,15 +14,15 @@ class FaceProfileStatusTest extends TestCase
     {
         // Act & Assert
         $this->assertTrue(enum_exists(FaceProfileStatus::class));
-        
+
         $cases = FaceProfileStatus::cases();
         $this->assertCount(3, $cases);
-        
+
         $caseValues = [];
         foreach ($cases as $case) {
             $caseValues[] = $case->value;
         }
-        
+
         $this->assertContains('active', $caseValues);
         $this->assertContains('expired', $caseValues);
         $this->assertContains('disabled', $caseValues);
@@ -71,13 +71,9 @@ class FaceProfileStatusTest extends TestCase
         ];
 
         // Act & Assert
-        foreach ($expectedDescriptions as $expectedDescription => $status) {
-            $this->assertSame(match($status) {
-                FaceProfileStatus::ACTIVE => '活跃',
-                FaceProfileStatus::EXPIRED => '已过期',
-                FaceProfileStatus::DISABLED => '已禁用',
-            }, $status->getDescription());
-        }
+        $this->assertSame('活跃', FaceProfileStatus::ACTIVE->getDescription());
+        $this->assertSame('已过期', FaceProfileStatus::EXPIRED->getDescription());
+        $this->assertSame('已禁用', FaceProfileStatus::DISABLED->getDescription());
     }
 
     public function test_is_usable_returns_correct_boolean(): void
@@ -205,18 +201,22 @@ class FaceProfileStatusTest extends TestCase
 
     public function test_enum_in_match_expression(): void
     {
-        // Arrange
-        $status = FaceProfileStatus::ACTIVE;
+        // Arrange & Act & Assert
+        foreach (FaceProfileStatus::cases() as $status) {
+            $result = match ($status) {
+                FaceProfileStatus::ACTIVE => 'active_result',
+                FaceProfileStatus::EXPIRED => 'expired_result',
+                FaceProfileStatus::DISABLED => 'disabled_result',
+            };
 
-        // Act
-        $result = match($status) {
-            FaceProfileStatus::ACTIVE => 'active_result',
-            FaceProfileStatus::EXPIRED => 'expired_result',
-            FaceProfileStatus::DISABLED => 'disabled_result',
-        };
+            $expectedResult = match ($status) {
+                FaceProfileStatus::ACTIVE => 'active_result',
+                FaceProfileStatus::EXPIRED => 'expired_result',
+                FaceProfileStatus::DISABLED => 'disabled_result',
+            };
 
-        // Assert
-        $this->assertSame('active_result', $result);
+            $this->assertSame($expectedResult, $result);
+        }
     }
 
     public function test_all_cases_have_descriptions(): void
@@ -268,4 +268,4 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame('活跃', $status->getDescription());
         $this->assertTrue($status->isUsable());
     }
-} 
+}

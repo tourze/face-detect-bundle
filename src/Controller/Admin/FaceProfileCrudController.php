@@ -82,7 +82,7 @@ class FaceProfileCrudController extends AbstractCrudController
             ->renderExpanded(false);
 
         yield CodeEditorField::new('deviceInfo', '设备信息')
-            ->setLanguage('json')
+            ->setLanguage('javascript')
             ->hideOnIndex()
             ->setHelp('采集设备的详细信息');
 
