@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Enum;
 
 use Tourze\EnumExtra\Itemable;
@@ -11,36 +13,33 @@ use Tourze\EnumExtra\SelectTrait;
 /**
  * 验证类型枚举
  */
-enum VerificationType: string implements Itemable, Labelable, Selectable
+enum VerificationType: string implements Labelable, Itemable, Selectable
 {
     use ItemTrait;
     use SelectTrait;
-    case REQUIRED = 'required';  // 必需验证
-    case OPTIONAL = 'optional';  // 可选验证
-    case FORCED = 'forced';      // 强制验证
+    case REQUIRED = 'required';
+    case OPTIONAL = 'optional';
+    case FORCED = 'forced';
 
     public function getLabel(): string
     {
-        return match($this) {
+        return $this->getDescription();
+    }
+
+    public function getDescription(): string
+    {
+        return match ($this) {
             self::REQUIRED => '必需验证',
             self::OPTIONAL => '可选验证',
             self::FORCED => '强制验证',
         };
     }
 
-    /**
-     * 获取类型描述
-     */
-    public function getDescription(): string
-    {
-        return $this->getLabel();
-    }
-
-    /**
-     * 检查是否为强制类型
-     */
     public function isMandatory(): bool
     {
-        return $this === self::REQUIRED || $this === self::FORCED;
+        return match ($this) {
+            self::REQUIRED, self::FORCED => true,
+            self::OPTIONAL => false,
+        };
     }
 }

@@ -1,16 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Tests\Enum;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 
 /**
  * FaceProfileStatus 枚举类测试
+ *
+ * @internal
  */
-class FaceProfileStatusTest extends TestCase
+#[CoversClass(FaceProfileStatus::class)]
+final class FaceProfileStatusTest extends AbstractEnumTestCase
 {
-    public function test_enum_cases_exist(): void
+    public function testEnumCasesExist(): void
     {
         // Act & Assert
         $this->assertTrue(enum_exists(FaceProfileStatus::class));
@@ -28,7 +34,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertContains('disabled', $caseValues);
     }
 
-    public function test_active_case_properties(): void
+    public function testActiveCaseProperties(): void
     {
         // Act
         $status = FaceProfileStatus::ACTIVE;
@@ -39,7 +45,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertTrue($status->isUsable());
     }
 
-    public function test_expired_case_properties(): void
+    public function testExpiredCaseProperties(): void
     {
         // Act
         $status = FaceProfileStatus::EXPIRED;
@@ -50,7 +56,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertFalse($status->isUsable());
     }
 
-    public function test_disabled_case_properties(): void
+    public function testDisabledCaseProperties(): void
     {
         // Act
         $status = FaceProfileStatus::DISABLED;
@@ -61,7 +67,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertFalse($status->isUsable());
     }
 
-    public function test_get_description_returns_correct_strings(): void
+    public function testGetDescriptionReturnsCorrectStrings(): void
     {
         // Arrange
         $expectedDescriptions = [
@@ -76,7 +82,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame('已禁用', FaceProfileStatus::DISABLED->getDescription());
     }
 
-    public function test_is_usable_returns_correct_boolean(): void
+    public function testIsUsableReturnsCorrectBoolean(): void
     {
         // Arrange
         $expectedUsability = [
@@ -86,14 +92,13 @@ class FaceProfileStatusTest extends TestCase
         ];
 
         // Act & Assert
-        foreach ($expectedUsability as $description => $status) {
-            $expectedUsable = $status === FaceProfileStatus::ACTIVE;
+        foreach ($expectedUsability as $status) {
+            $expectedUsable = FaceProfileStatus::ACTIVE === $status;
             $this->assertSame($expectedUsable, $status->isUsable());
         }
     }
 
-
-    public function test_enum_values_are_unique(): void
+    public function testEnumValuesAreUnique(): void
     {
         // Arrange
         $cases = FaceProfileStatus::cases();
@@ -107,7 +112,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertCount(count($values), $uniqueValues, '枚举值应该是唯一的');
     }
 
-    public function test_enum_can_be_constructed_from_value(): void
+    public function testEnumCanBeConstructedFromValue(): void
     {
         // Act & Assert
         $this->assertSame(FaceProfileStatus::ACTIVE, FaceProfileStatus::from('active'));
@@ -115,7 +120,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame(FaceProfileStatus::DISABLED, FaceProfileStatus::from('disabled'));
     }
 
-    public function test_enum_try_from_with_valid_values(): void
+    public function testEnumTryFromWithValidValues(): void
     {
         // Act & Assert
         $this->assertSame(FaceProfileStatus::ACTIVE, FaceProfileStatus::tryFrom('active'));
@@ -123,7 +128,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame(FaceProfileStatus::DISABLED, FaceProfileStatus::tryFrom('disabled'));
     }
 
-    public function test_enum_try_from_with_invalid_value(): void
+    public function testEnumTryFromWithInvalidValue(): void
     {
         // Act & Assert
         $this->assertNull(FaceProfileStatus::tryFrom('invalid'));
@@ -131,14 +136,14 @@ class FaceProfileStatusTest extends TestCase
         $this->assertNull(FaceProfileStatus::tryFrom('ACTIVE')); // 大小写敏感
     }
 
-    public function test_enum_from_throws_exception_with_invalid_value(): void
+    public function testEnumFromThrowsExceptionWithInvalidValue(): void
     {
         // Arrange & Act & Assert
         $this->expectException(\ValueError::class);
         FaceProfileStatus::from('invalid');
     }
 
-    public function test_enum_comparison(): void
+    public function testEnumComparison(): void
     {
         // Arrange
         $active1 = FaceProfileStatus::ACTIVE;
@@ -147,12 +152,13 @@ class FaceProfileStatusTest extends TestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($active1, FaceProfileStatus::ACTIVE);
-        $this->assertNotSame($active1, $expired);
+        /* @phpstan-ignore-next-line */
+        $this->assertFalse($active1 === $expired);
         $this->assertEquals($active1->value, 'active');
         $this->assertNotEquals($active1->value, $expired->value);
     }
 
-    public function test_enum_serialization(): void
+    public function testEnumSerialization(): void
     {
         // Arrange
         $status = FaceProfileStatus::ACTIVE;
@@ -166,13 +172,16 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame($status->value, $unserialized->value);
     }
 
-    public function test_enum_json_serialization(): void
+    public function testEnumJsonSerialization(): void
     {
         // Arrange
         $status = FaceProfileStatus::EXPIRED;
 
         // Act
         $json = json_encode($status);
+        if (false === $json) {
+            self::fail('Failed to encode enum to JSON');
+        }
         $decoded = json_decode($json, true);
 
         // Assert
@@ -180,7 +189,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame('expired', $decoded);
     }
 
-    public function test_enum_string_representation(): void
+    public function testEnumStringRepresentation(): void
     {
         // Act & Assert
         $this->assertSame('active', (string) FaceProfileStatus::ACTIVE->value);
@@ -188,7 +197,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame('disabled', (string) FaceProfileStatus::DISABLED->value);
     }
 
-    public function test_enum_in_array_operations(): void
+    public function testEnumInArrayOperations(): void
     {
         // Arrange
         $statuses = [FaceProfileStatus::ACTIVE, FaceProfileStatus::EXPIRED];
@@ -199,7 +208,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertNotContains(FaceProfileStatus::DISABLED, $statuses);
     }
 
-    public function test_enum_in_match_expression(): void
+    public function testEnumInMatchExpression(): void
     {
         // Arrange & Act & Assert
         foreach (FaceProfileStatus::cases() as $status) {
@@ -219,7 +228,7 @@ class FaceProfileStatusTest extends TestCase
         }
     }
 
-    public function test_all_cases_have_descriptions(): void
+    public function testAllCasesHaveDescriptions(): void
     {
         // Act & Assert
         foreach (FaceProfileStatus::cases() as $status) {
@@ -228,7 +237,7 @@ class FaceProfileStatusTest extends TestCase
         }
     }
 
-    public function test_only_active_is_usable(): void
+    public function testOnlyActiveIsUsable(): void
     {
         // Arrange
         $usableCount = 0;
@@ -237,9 +246,9 @@ class FaceProfileStatusTest extends TestCase
         // Act
         foreach (FaceProfileStatus::cases() as $status) {
             if ($status->isUsable()) {
-                $usableCount++;
+                ++$usableCount;
             } else {
-                $nonUsableCount++;
+                ++$nonUsableCount;
             }
         }
 
@@ -249,7 +258,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertTrue(FaceProfileStatus::ACTIVE->isUsable());
     }
 
-    public function test_enum_backed_by_string(): void
+    public function testEnumBackedByString(): void
     {
         // Act & Assert
         $reflection = new \ReflectionEnum(FaceProfileStatus::class);
@@ -257,7 +266,7 @@ class FaceProfileStatusTest extends TestCase
         $this->assertSame('string', $reflection->getBackingType()->getName());
     }
 
-    public function test_enum_methods_are_case_sensitive(): void
+    public function testEnumMethodsAreCaseSensitive(): void
     {
         // Arrange
         $status = FaceProfileStatus::ACTIVE;
@@ -267,5 +276,57 @@ class FaceProfileStatusTest extends TestCase
         $this->assertNotEmpty($status->getDescription());
         $this->assertSame('活跃', $status->getDescription());
         $this->assertTrue($status->isUsable());
+    }
+
+    public function testToArray(): void
+    {
+        // Act - 测试每个枚举实例的toArray方法
+        foreach (FaceProfileStatus::cases() as $status) {
+            $result = $status->toArray();
+
+            // Assert
+            $this->assertIsArray($result);
+            $this->assertArrayHasKey('value', $result);
+            $this->assertArrayHasKey('label', $result);
+            $this->assertSame($status->value, $result['value']);
+            $this->assertSame($status->getLabel(), $result['label']);
+        }
+
+        // 验证具体的值
+        $activeResult = FaceProfileStatus::ACTIVE->toArray();
+        $this->assertSame('active', $activeResult['value']);
+        $this->assertSame('活跃', $activeResult['label']);
+
+        $expiredResult = FaceProfileStatus::EXPIRED->toArray();
+        $this->assertSame('expired', $expiredResult['value']);
+        $this->assertSame('已过期', $expiredResult['label']);
+
+        $disabledResult = FaceProfileStatus::DISABLED->toArray();
+        $this->assertSame('disabled', $disabledResult['value']);
+        $this->assertSame('已禁用', $disabledResult['label']);
+    }
+
+    public function testGenOptions(): void
+    {
+        // Act - 测试静态方法genOptions
+        $result = FaceProfileStatus::genOptions();
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(3, $result);
+
+        // 验证每个选项的结构
+        foreach ($result as $option) {
+            $this->assertIsArray($option);
+            $this->assertArrayHasKey('label', $option);
+            $this->assertArrayHasKey('text', $option);
+            $this->assertArrayHasKey('value', $option);
+        }
+
+        // 验证具体的值
+        $values = array_column($result, 'value');
+        $this->assertContains('active', $values);
+        $this->assertContains('expired', $values);
+        $this->assertContains('disabled', $values);
     }
 }

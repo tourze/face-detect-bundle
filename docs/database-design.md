@@ -72,7 +72,6 @@ CREATE TABLE verification_records (
     INDEX idx_business_type (business_type),
     INDEX idx_operation_id (operation_id),
     INDEX idx_result (result),
-    INDEX idx_created_at (created_at),
 
     FOREIGN KEY (strategy_id) REFERENCES verification_strategies(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='验证记录表';

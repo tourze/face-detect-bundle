@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -29,9 +30,11 @@ use Tourze\FaceDetectBundle\Enum\OperationStatus;
 
 /**
  * 操作日志管理控制器
+ *
+ * @extends AbstractCrudController<OperationLog>
  */
 #[AdminCrud(routePath: '/face-detect/operation-log', routeName: 'face_detect_operation_log')]
-class OperationLogCrudController extends AbstractCrudController
+final class OperationLogCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -50,26 +53,34 @@ class OperationLogCrudController extends AbstractCrudController
             ->setHelp('index', '查看和管理用户的业务操作和验证关联信息')
             ->setDefaultSort(['id' => 'DESC'])
             ->setSearchFields(['userId', 'operationId', 'operationType'])
-            ->setPaginatorPageSize(20);
+            ->setPaginatorPageSize(20)
+        ;
     }
 
+    /**
+     * @return iterable<FieldInterface|string>
+     */
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', 'ID')
             ->setMaxLength(9999)
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield TextField::new('userId', '用户ID')
             ->setRequired(true)
-            ->setHelp('操作用户的唯一标识符');
+            ->setHelp('操作用户的唯一标识符')
+        ;
 
         yield TextField::new('operationId', '操作ID')
             ->setRequired(true)
-            ->setHelp('业务操作的唯一标识符');
+            ->setHelp('业务操作的唯一标识符')
+        ;
 
         yield TextField::new('operationType', '操作类型')
             ->setRequired(true)
-            ->setHelp('业务操作的分类类型');
+            ->setHelp('业务操作的分类类型')
+        ;
 
         yield CodeEditorField::new('businessContext', '业务上下文')
             ->setLanguage('javascript')
@@ -78,52 +89,63 @@ class OperationLogCrudController extends AbstractCrudController
             ->setHelp('操作相关的业务上下文信息')
             ->formatValue(function ($value) {
                 return is_array($value) ? json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $value;
-            });
+            })
+        ;
 
         yield BooleanField::new('verificationRequired', '需要验证')
-            ->setHelp('此操作是否需要人脸验证');
+            ->setHelp('此操作是否需要人脸验证')
+        ;
 
         yield BooleanField::new('verificationCompleted', '验证完成')
-            ->setHelp('人脸验证是否已完成');
+            ->setHelp('人脸验证是否已完成')
+        ;
 
         yield IntegerField::new('verificationCount', '验证次数')
             ->setHelp('已进行的验证次数')
-            ->formatValue(function ($value) {
-                return (int)$value;
-            });
+            ->formatValue(function (mixed $value): string {
+                return (string) (is_numeric($value) ? (int) $value : 0);
+            })
+        ;
 
         yield IntegerField::new('minVerificationCount', '最少验证次数')
             ->setHelp('操作要求的最少验证次数')
-            ->formatValue(function ($value) {
-                return (int)$value;
-            });
+            ->formatValue(function (mixed $value): string {
+                return (string) (is_numeric($value) ? (int) $value : 0);
+            })
+        ;
 
         yield ChoiceField::new('status', '操作状态')
             ->setFormType(EnumType::class)
             ->setFormTypeOptions(['class' => OperationStatus::class])
             ->formatValue(function ($value) {
                 return $value instanceof OperationStatus ? $value->getDescription() : '';
-            });
+            })
+        ;
 
         yield NumberField::new('duration', '操作持续时间')
             ->hideOnForm()
             ->hideOnIndex()
             ->setHelp('操作总持续时间(秒)')
             ->formatValue(function ($value, $entity) {
-                if ($entity && method_exists($entity, 'getDuration')) {
+                if ($entity instanceof OperationLog) {
                     $duration = $entity->getDuration();
-                    return $duration !== null ? number_format($duration, 1) . 's' : '进行中';
+
+                    return null !== $duration ? number_format($duration, 1) . 's' : '进行中';
                 }
+
                 return '';
-            });
+            })
+        ;
 
         yield DateTimeField::new('startedTime', '开始时间')
             ->hideOnForm()
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+        ;
 
         yield DateTimeField::new('completedTime', '完成时间')
             ->setRequired(false)
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -143,16 +165,18 @@ class OperationLogCrudController extends AbstractCrudController
                 ->setChoices($statusChoices))
             ->add(NumericFilter::new('verificationCount', '验证次数'))
             ->add(DateTimeFilter::new('startedTime', '开始时间'))
-            ->add(DateTimeFilter::new('completedTime', '完成时间'));
+            ->add(DateTimeFilter::new('completedTime', '完成时间'))
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->remove(Crud::PAGE_INDEX, Action::NEW)
-            ->remove(Crud::PAGE_INDEX, Action::EDIT)
-            ->remove(Crud::PAGE_INDEX, Action::DELETE)
-            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL]);
+            ->disable(Action::NEW)
+            ->disable(Action::EDIT)
+            ->disable(Action::DELETE)
+            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL])
+        ;
     }
 }

@@ -1,16 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Tests\Enum;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Enum\OperationStatus;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 
 /**
  * OperationStatus 枚举类测试
+ *
+ * @internal
  */
-class OperationStatusTest extends TestCase
+#[CoversClass(OperationStatus::class)]
+final class OperationStatusTest extends AbstractEnumTestCase
 {
-    public function test_enum_cases_exist(): void
+    public function testEnumCasesExist(): void
     {
         // Act & Assert
         $this->assertTrue(enum_exists(OperationStatus::class));
@@ -30,7 +36,7 @@ class OperationStatusTest extends TestCase
         $this->assertContains('cancelled', $caseValues);
     }
 
-    public function test_pending_case_properties(): void
+    public function testPendingCaseProperties(): void
     {
         // Act
         $status = OperationStatus::PENDING;
@@ -42,7 +48,7 @@ class OperationStatusTest extends TestCase
         $this->assertFalse($status->isSuccessful());
     }
 
-    public function test_processing_case_properties(): void
+    public function testProcessingCaseProperties(): void
     {
         // Act
         $status = OperationStatus::PROCESSING;
@@ -54,7 +60,7 @@ class OperationStatusTest extends TestCase
         $this->assertFalse($status->isSuccessful());
     }
 
-    public function test_completed_case_properties(): void
+    public function testCompletedCaseProperties(): void
     {
         // Act
         $status = OperationStatus::COMPLETED;
@@ -66,7 +72,7 @@ class OperationStatusTest extends TestCase
         $this->assertTrue($status->isSuccessful());
     }
 
-    public function test_failed_case_properties(): void
+    public function testFailedCaseProperties(): void
     {
         // Act
         $status = OperationStatus::FAILED;
@@ -78,7 +84,7 @@ class OperationStatusTest extends TestCase
         $this->assertFalse($status->isSuccessful());
     }
 
-    public function test_cancelled_case_properties(): void
+    public function testCancelledCaseProperties(): void
     {
         // Act
         $status = OperationStatus::CANCELLED;
@@ -90,7 +96,7 @@ class OperationStatusTest extends TestCase
         $this->assertFalse($status->isSuccessful());
     }
 
-    public function test_get_description_returns_correct_strings(): void
+    public function testGetDescriptionReturnsCorrectStrings(): void
     {
         // Act & Assert
         $this->assertSame('等待中', OperationStatus::PENDING->getDescription());
@@ -100,7 +106,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame('已取消', OperationStatus::CANCELLED->getDescription());
     }
 
-    public function test_is_final_returns_correct_boolean(): void
+    public function testIsFinalReturnsCorrectBoolean(): void
     {
         // Act & Assert
         $this->assertFalse(OperationStatus::PENDING->isFinal());
@@ -110,7 +116,7 @@ class OperationStatusTest extends TestCase
         $this->assertTrue(OperationStatus::CANCELLED->isFinal());
     }
 
-    public function test_is_successful_returns_correct_boolean(): void
+    public function testIsSuccessfulReturnsCorrectBoolean(): void
     {
         // Act & Assert
         $this->assertFalse(OperationStatus::PENDING->isSuccessful());
@@ -120,8 +126,7 @@ class OperationStatusTest extends TestCase
         $this->assertFalse(OperationStatus::CANCELLED->isSuccessful());
     }
 
-
-    public function test_enum_values_are_unique(): void
+    public function testEnumValuesAreUnique(): void
     {
         // Arrange
         $cases = OperationStatus::cases();
@@ -135,7 +140,7 @@ class OperationStatusTest extends TestCase
         $this->assertCount(count($values), $uniqueValues, '枚举值应该是唯一的');
     }
 
-    public function test_enum_can_be_constructed_from_value(): void
+    public function testEnumCanBeConstructedFromValue(): void
     {
         // Act & Assert
         $this->assertSame(OperationStatus::PENDING, OperationStatus::from('pending'));
@@ -145,7 +150,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame(OperationStatus::CANCELLED, OperationStatus::from('cancelled'));
     }
 
-    public function test_enum_try_from_with_valid_values(): void
+    public function testEnumTryFromWithValidValues(): void
     {
         // Act & Assert
         $this->assertSame(OperationStatus::PENDING, OperationStatus::tryFrom('pending'));
@@ -155,7 +160,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame(OperationStatus::CANCELLED, OperationStatus::tryFrom('cancelled'));
     }
 
-    public function test_enum_try_from_with_invalid_value(): void
+    public function testEnumTryFromWithInvalidValue(): void
     {
         // Act & Assert
         $this->assertNull(OperationStatus::tryFrom('invalid'));
@@ -163,14 +168,14 @@ class OperationStatusTest extends TestCase
         $this->assertNull(OperationStatus::tryFrom('PENDING')); // 大小写敏感
     }
 
-    public function test_enum_from_throws_exception_with_invalid_value(): void
+    public function testEnumFromThrowsExceptionWithInvalidValue(): void
     {
         // Arrange & Act & Assert
         $this->expectException(\ValueError::class);
         OperationStatus::from('invalid');
     }
 
-    public function test_enum_comparison(): void
+    public function testEnumComparison(): void
     {
         // Arrange
         $pending = OperationStatus::PENDING;
@@ -179,12 +184,13 @@ class OperationStatusTest extends TestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($pending, OperationStatus::PENDING);
-        $this->assertNotSame($pending, $completed);
+        /* @phpstan-ignore-next-line */
+        $this->assertFalse($pending === $completed);
         $this->assertEquals($pending->value, 'pending');
         $this->assertNotEquals($pending->value, $completed->value);
     }
 
-    public function test_enum_serialization(): void
+    public function testEnumSerialization(): void
     {
         // Arrange
         $status = OperationStatus::PROCESSING;
@@ -198,13 +204,16 @@ class OperationStatusTest extends TestCase
         $this->assertSame($status->value, $unserialized->value);
     }
 
-    public function test_enum_json_serialization(): void
+    public function testEnumJsonSerialization(): void
     {
         // Arrange
         $status = OperationStatus::FAILED;
 
         // Act
         $json = json_encode($status);
+        if (false === $json) {
+            self::fail('Failed to encode enum to JSON');
+        }
         $decoded = json_decode($json, true);
 
         // Assert
@@ -212,7 +221,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame('failed', $decoded);
     }
 
-    public function test_enum_string_representation(): void
+    public function testEnumStringRepresentation(): void
     {
         // Act & Assert
         $this->assertSame('pending', (string) OperationStatus::PENDING->value);
@@ -222,7 +231,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame('cancelled', (string) OperationStatus::CANCELLED->value);
     }
 
-    public function test_enum_in_array_operations(): void
+    public function testEnumInArrayOperations(): void
     {
         // Arrange
         $statuses = [OperationStatus::PENDING, OperationStatus::PROCESSING];
@@ -233,7 +242,7 @@ class OperationStatusTest extends TestCase
         $this->assertNotContains(OperationStatus::COMPLETED, $statuses);
     }
 
-    public function test_enum_in_match_expression(): void
+    public function testEnumInMatchExpression(): void
     {
         // Arrange & Act & Assert
         foreach (OperationStatus::cases() as $status) {
@@ -257,7 +266,7 @@ class OperationStatusTest extends TestCase
         }
     }
 
-    public function test_all_cases_have_descriptions(): void
+    public function testAllCasesHaveDescriptions(): void
     {
         // Act & Assert
         foreach (OperationStatus::cases() as $status) {
@@ -266,7 +275,7 @@ class OperationStatusTest extends TestCase
         }
     }
 
-    public function test_only_completed_is_successful(): void
+    public function testOnlyCompletedIsSuccessful(): void
     {
         // Arrange
         $successfulCount = 0;
@@ -275,9 +284,9 @@ class OperationStatusTest extends TestCase
         // Act
         foreach (OperationStatus::cases() as $status) {
             if ($status->isSuccessful()) {
-                $successfulCount++;
+                ++$successfulCount;
             } else {
-                $nonSuccessfulCount++;
+                ++$nonSuccessfulCount;
             }
         }
 
@@ -287,7 +296,7 @@ class OperationStatusTest extends TestCase
         $this->assertTrue(OperationStatus::COMPLETED->isSuccessful());
     }
 
-    public function test_final_states_count(): void
+    public function testFinalStatesCount(): void
     {
         // Arrange
         $finalCount = 0;
@@ -296,9 +305,9 @@ class OperationStatusTest extends TestCase
         // Act
         foreach (OperationStatus::cases() as $status) {
             if ($status->isFinal()) {
-                $finalCount++;
+                ++$finalCount;
             } else {
-                $nonFinalCount++;
+                ++$nonFinalCount;
             }
         }
 
@@ -307,7 +316,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame(2, $nonFinalCount, '应该有两个非终态');
     }
 
-    public function test_enum_backed_by_string(): void
+    public function testEnumBackedByString(): void
     {
         // Act & Assert
         $reflection = new \ReflectionEnum(OperationStatus::class);
@@ -315,7 +324,7 @@ class OperationStatusTest extends TestCase
         $this->assertSame('string', $reflection->getBackingType()->getName());
     }
 
-    public function test_business_logic_consistency(): void
+    public function testBusinessLogicConsistency(): void
     {
         // Assert - 验证业务逻辑一致性
         // 只有已完成状态是成功的
@@ -335,7 +344,7 @@ class OperationStatusTest extends TestCase
         $this->assertFalse(OperationStatus::PROCESSING->isSuccessful());
     }
 
-    public function test_state_transition_logic(): void
+    public function testStateTransitionLogic(): void
     {
         // Assert - 测试状态转换的逻辑性
         $nonFinalStates = [OperationStatus::PENDING, OperationStatus::PROCESSING];
@@ -348,5 +357,53 @@ class OperationStatusTest extends TestCase
         foreach ($finalStates as $state) {
             $this->assertTrue($state->isFinal(), "终态 {$state->value} 应该是终态");
         }
+    }
+
+    public function testToArray(): void
+    {
+        // Act - 测试每个枚举实例的toArray方法
+        foreach (OperationStatus::cases() as $status) {
+            $result = $status->toArray();
+
+            // Assert
+            $this->assertIsArray($result);
+            $this->assertArrayHasKey('value', $result);
+            $this->assertArrayHasKey('label', $result);
+            $this->assertSame($status->value, $result['value']);
+            $this->assertSame($status->getDescription(), $result['label']);
+        }
+
+        // 验证具体的值
+        $this->assertSame(['value' => 'pending', 'label' => '等待中'], OperationStatus::PENDING->toArray());
+        $this->assertSame(['value' => 'processing', 'label' => '处理中'], OperationStatus::PROCESSING->toArray());
+        $this->assertSame(['value' => 'completed', 'label' => '已完成'], OperationStatus::COMPLETED->toArray());
+        $this->assertSame(['value' => 'failed', 'label' => '失败'], OperationStatus::FAILED->toArray());
+        $this->assertSame(['value' => 'cancelled', 'label' => '已取消'], OperationStatus::CANCELLED->toArray());
+    }
+
+    public function testGenOptions(): void
+    {
+        // Act - 测试静态方法genOptions
+        $result = OperationStatus::genOptions();
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(5, $result);
+
+        // 验证每个选项的结构
+        foreach ($result as $option) {
+            $this->assertIsArray($option);
+            $this->assertArrayHasKey('label', $option);
+            $this->assertArrayHasKey('text', $option);
+            $this->assertArrayHasKey('value', $option);
+        }
+
+        // 验证具体的值
+        $values = array_column($result, 'value');
+        $this->assertContains('pending', $values);
+        $this->assertContains('processing', $values);
+        $this->assertContains('completed', $values);
+        $this->assertContains('failed', $values);
+        $this->assertContains('cancelled', $values);
     }
 }

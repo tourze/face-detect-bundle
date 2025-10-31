@@ -16,44 +16,57 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
 /**
  * 人脸识别菜单服务
  */
-class AdminMenu implements MenuProviderInterface
+readonly class AdminMenu implements MenuProviderInterface
 {
     public function __construct(
-        private readonly LinkGeneratorInterface $linkGenerator,
+        private ?LinkGeneratorInterface $linkGenerator = null,
     ) {
     }
 
     public function __invoke(ItemInterface $item): void
     {
-        if ($item->getChild('人脸识别') === null) {
+        if (null === $this->linkGenerator) {
+            return;
+        }
+
+        if (null === $item->getChild('人脸识别')) {
             $item->addChild('人脸识别');
         }
 
         $faceDetectMenu = $item->getChild('人脸识别');
 
+        if (null === $faceDetectMenu) {
+            return;
+        }
+
         // 人脸档案管理菜单
         $faceDetectMenu->addChild('人脸档案')
             ->setUri($this->linkGenerator->getCurdListPage(FaceProfile::class))
-            ->setAttribute('icon', 'fas fa-user-circle');
+            ->setAttribute('icon', 'fas fa-user-circle')
+        ;
 
         // 验证策略管理菜单
         $faceDetectMenu->addChild('验证策略')
             ->setUri($this->linkGenerator->getCurdListPage(VerificationStrategy::class))
-            ->setAttribute('icon', 'fas fa-shield-alt');
+            ->setAttribute('icon', 'fas fa-shield-alt')
+        ;
 
         // 策略规则管理菜单
         $faceDetectMenu->addChild('策略规则')
             ->setUri($this->linkGenerator->getCurdListPage(StrategyRule::class))
-            ->setAttribute('icon', 'fas fa-cogs');
+            ->setAttribute('icon', 'fas fa-cogs')
+        ;
 
         // 验证记录菜单
         $faceDetectMenu->addChild('验证记录')
             ->setUri($this->linkGenerator->getCurdListPage(VerificationRecord::class))
-            ->setAttribute('icon', 'fas fa-history');
+            ->setAttribute('icon', 'fas fa-history')
+        ;
 
         // 操作日志菜单
         $faceDetectMenu->addChild('操作日志')
             ->setUri($this->linkGenerator->getCurdListPage(OperationLog::class))
-            ->setAttribute('icon', 'fas fa-clipboard-list');
+            ->setAttribute('icon', 'fas fa-clipboard-list')
+        ;
     }
 }

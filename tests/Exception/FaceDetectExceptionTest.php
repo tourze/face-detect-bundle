@@ -2,66 +2,71 @@
 
 namespace Tourze\FaceDetectBundle\Tests\Exception;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Exception\FaceDetectException;
+use Tourze\FaceDetectBundle\Exception\VerificationException;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 
 /**
  * FaceDetectException 异常类测试
+ *
+ * @internal
  */
-class FaceDetectExceptionTest extends TestCase
+#[CoversClass(FaceDetectException::class)]
+final class FaceDetectExceptionTest extends AbstractExceptionTestCase
 {
-    public function test_construction_with_default_values(): void
+    public function testConstructionWithDefaultValues(): void
     {
         // Act
-        $exception = new FaceDetectException();
+        $exception = new VerificationException();
 
         // Assert
-        $this->assertSame('未知错误', $exception->getMessage());
-        $this->assertSame(FaceDetectException::ERROR_UNKNOWN, $exception->getCode());
+        $this->assertSame('人脸验证失败', $exception->getMessage());
+        $this->assertSame(VerificationException::ERROR_VERIFICATION_FAILED, $exception->getCode());
         $this->assertNull($exception->getPrevious());
     }
 
-    public function test_construction_with_custom_message(): void
+    public function testConstructionWithCustomMessage(): void
     {
         // Arrange
         $message = 'Custom error message';
 
         // Act
-        $exception = new FaceDetectException($message);
+        $exception = new VerificationException($message);
 
         // Assert
         $this->assertSame($message, $exception->getMessage());
-        $this->assertSame(FaceDetectException::ERROR_UNKNOWN, $exception->getCode());
+        $this->assertSame(VerificationException::ERROR_VERIFICATION_FAILED, $exception->getCode());
     }
 
-    public function test_construction_with_custom_code(): void
+    public function testConstructionWithCustomCode(): void
     {
         // Arrange
         $code = FaceDetectException::ERROR_INVALID_PARAMETER;
 
         // Act
-        $exception = new FaceDetectException('', $code);
+        $exception = new VerificationException('', $code);
 
         // Assert
         $this->assertSame('参数无效', $exception->getMessage());
         $this->assertSame($code, $exception->getCode());
     }
 
-    public function test_construction_with_custom_message_and_code(): void
+    public function testConstructionWithCustomMessageAndCode(): void
     {
         // Arrange
         $message = 'Custom message';
         $code = FaceDetectException::ERROR_CONFIGURATION_MISSING;
 
         // Act
-        $exception = new FaceDetectException($message, $code);
+        $exception = new VerificationException($message, $code);
 
         // Assert
         $this->assertSame($message, $exception->getMessage());
         $this->assertSame($code, $exception->getCode());
     }
 
-    public function test_construction_with_previous_exception(): void
+    public function testConstructionWithPreviousException(): void
     {
         // Arrange
         $previous = new \RuntimeException('Previous error');
@@ -69,7 +74,7 @@ class FaceDetectExceptionTest extends TestCase
         $code = FaceDetectException::ERROR_SERVICE_UNAVAILABLE;
 
         // Act
-        $exception = new FaceDetectException($message, $code, $previous);
+        $exception = new VerificationException($message, $code, $previous);
 
         // Assert
         $this->assertSame($message, $exception->getMessage());
@@ -77,7 +82,7 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame($previous, $exception->getPrevious());
     }
 
-    public function test_construction_with_empty_message_uses_default_for_known_code(): void
+    public function testConstructionWithEmptyMessageUsesDefaultForKnownCode(): void
     {
         // Arrange
         $knownCodes = [
@@ -89,26 +94,26 @@ class FaceDetectExceptionTest extends TestCase
 
         // Act & Assert
         foreach ($knownCodes as $code => $expectedMessage) {
-            $exception = new FaceDetectException('', $code);
+            $exception = new VerificationException('', $code);
             $this->assertSame($expectedMessage, $exception->getMessage());
             $this->assertSame($code, $exception->getCode());
         }
     }
 
-    public function test_construction_with_unknown_code(): void
+    public function testConstructionWithUnknownCode(): void
     {
         // Arrange
         $unknownCode = 9999;
 
         // Act
-        $exception = new FaceDetectException('', $unknownCode);
+        $exception = new VerificationException('', $unknownCode);
 
         // Assert
         $this->assertSame('', $exception->getMessage());
         $this->assertSame($unknownCode, $exception->getCode());
     }
 
-    public function test_get_error_message_with_known_codes(): void
+    public function testGetErrorMessageWithKnownCodes(): void
     {
         // Arrange
         $expectedMessages = [
@@ -125,7 +130,7 @@ class FaceDetectExceptionTest extends TestCase
         }
     }
 
-    public function test_get_error_message_with_unknown_code(): void
+    public function testGetErrorMessageWithUnknownCode(): void
     {
         // Arrange
         $unknownCode = 8888;
@@ -137,13 +142,13 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame('未知错误', $message);
     }
 
-    public function test_invalid_parameter_factory_method(): void
+    public function testInvalidParameterFactoryMethod(): void
     {
         // Arrange
         $parameter = 'user_id';
 
         // Act
-        $exception = FaceDetectException::invalidParameter($parameter);
+        $exception = VerificationException::invalidParameter($parameter);
 
         // Assert
         $this->assertInstanceOf(FaceDetectException::class, $exception);
@@ -153,14 +158,14 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame(FaceDetectException::ERROR_INVALID_PARAMETER, $exception->getCode());
     }
 
-    public function test_invalid_parameter_factory_method_with_reason(): void
+    public function testInvalidParameterFactoryMethodWithReason(): void
     {
         // Arrange
         $parameter = 'email';
         $reason = '格式不正确';
 
         // Act
-        $exception = FaceDetectException::invalidParameter($parameter, $reason);
+        $exception = VerificationException::invalidParameter($parameter, $reason);
 
         // Assert
         $this->assertStringContainsString($parameter, $exception->getMessage());
@@ -168,26 +173,26 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame(FaceDetectException::ERROR_INVALID_PARAMETER, $exception->getCode());
     }
 
-    public function test_invalid_parameter_factory_method_with_empty_parameter(): void
+    public function testInvalidParameterFactoryMethodWithEmptyParameter(): void
     {
         // Arrange
         $parameter = '';
 
         // Act
-        $exception = FaceDetectException::invalidParameter($parameter);
+        $exception = VerificationException::invalidParameter($parameter);
 
         // Assert
         $this->assertStringContainsString("参数 '' 无效", $exception->getMessage());
         $this->assertSame(FaceDetectException::ERROR_INVALID_PARAMETER, $exception->getCode());
     }
 
-    public function test_configuration_missing_factory_method(): void
+    public function testConfigurationMissingFactoryMethod(): void
     {
         // Arrange
         $configKey = 'database.host';
 
         // Act
-        $exception = FaceDetectException::configurationMissing($configKey);
+        $exception = VerificationException::configurationMissing($configKey);
 
         // Assert
         $this->assertInstanceOf(FaceDetectException::class, $exception);
@@ -197,26 +202,26 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame(FaceDetectException::ERROR_CONFIGURATION_MISSING, $exception->getCode());
     }
 
-    public function test_configuration_missing_factory_method_with_empty_key(): void
+    public function testConfigurationMissingFactoryMethodWithEmptyKey(): void
     {
         // Arrange
         $configKey = '';
 
         // Act
-        $exception = FaceDetectException::configurationMissing($configKey);
+        $exception = VerificationException::configurationMissing($configKey);
 
         // Assert
         $this->assertStringContainsString("配置项 '' 缺失", $exception->getMessage());
         $this->assertSame(FaceDetectException::ERROR_CONFIGURATION_MISSING, $exception->getCode());
     }
 
-    public function test_service_unavailable_factory_method(): void
+    public function testServiceUnavailableFactoryMethod(): void
     {
         // Arrange
         $service = 'FaceRecognitionService';
 
         // Act
-        $exception = FaceDetectException::serviceUnavailable($service);
+        $exception = VerificationException::serviceUnavailable($service);
 
         // Assert
         $this->assertInstanceOf(FaceDetectException::class, $exception);
@@ -226,14 +231,14 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame(FaceDetectException::ERROR_SERVICE_UNAVAILABLE, $exception->getCode());
     }
 
-    public function test_service_unavailable_factory_method_with_reason(): void
+    public function testServiceUnavailableFactoryMethodWithReason(): void
     {
         // Arrange
         $service = 'DatabaseService';
         $reason = '连接超时';
 
         // Act
-        $exception = FaceDetectException::serviceUnavailable($service, $reason);
+        $exception = VerificationException::serviceUnavailable($service, $reason);
 
         // Assert
         $this->assertStringContainsString($service, $exception->getMessage());
@@ -241,20 +246,20 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertSame(FaceDetectException::ERROR_SERVICE_UNAVAILABLE, $exception->getCode());
     }
 
-    public function test_service_unavailable_factory_method_with_empty_service(): void
+    public function testServiceUnavailableFactoryMethodWithEmptyService(): void
     {
         // Arrange
         $service = '';
 
         // Act
-        $exception = FaceDetectException::serviceUnavailable($service);
+        $exception = VerificationException::serviceUnavailable($service);
 
         // Assert
         $this->assertStringContainsString("服务 '' 不可用", $exception->getMessage());
         $this->assertSame(FaceDetectException::ERROR_SERVICE_UNAVAILABLE, $exception->getCode());
     }
 
-    public function test_error_code_constants_are_unique(): void
+    public function testErrorCodeConstantsAreUnique(): void
     {
         // Arrange
         $errorCodes = [
@@ -269,7 +274,7 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertCount(count($errorCodes), $uniqueCodes, '错误码应该是唯一的');
     }
 
-    public function test_error_code_constants_are_integers(): void
+    public function testErrorCodeConstantsAreIntegers(): void
     {
         // Arrange
         $errorCodes = [
@@ -286,17 +291,17 @@ class FaceDetectExceptionTest extends TestCase
         }
     }
 
-    public function test_inheritance_from_exception(): void
+    public function testInheritanceFromException(): void
     {
         // Act
-        $exception = new FaceDetectException();
+        $exception = new VerificationException();
 
         // Assert
         $this->assertInstanceOf(\Exception::class, $exception);
         $this->assertInstanceOf(\Throwable::class, $exception);
     }
 
-    public function test_exception_can_be_thrown_and_caught(): void
+    public function testExceptionCanBeThrownAndCaught(): void
     {
         // Arrange
         $message = 'Test exception';
@@ -307,15 +312,15 @@ class FaceDetectExceptionTest extends TestCase
         $this->expectExceptionMessage($message);
         $this->expectExceptionCode($code);
 
-        throw new FaceDetectException($message, $code);
+        throw new VerificationException($message, $code);
     }
 
-    public function test_factory_methods_return_throwable_exceptions(): void
+    public function testFactoryMethodsReturnThrowableExceptions(): void
     {
         // Act
-        $parameterException = FaceDetectException::invalidParameter('test');
-        $configException = FaceDetectException::configurationMissing('test.key');
-        $serviceException = FaceDetectException::serviceUnavailable('TestService');
+        $parameterException = VerificationException::invalidParameter('test');
+        $configException = VerificationException::configurationMissing('test.key');
+        $serviceException = VerificationException::serviceUnavailable('TestService');
 
         // Assert
         $this->assertInstanceOf(\Throwable::class, $parameterException);
@@ -323,12 +328,12 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertInstanceOf(\Throwable::class, $serviceException);
     }
 
-    public function test_complex_exception_chain(): void
+    public function testComplexExceptionChain(): void
     {
         // Arrange
         $rootCause = new \InvalidArgumentException('Root cause');
         $intermediateCause = new \RuntimeException('Intermediate', 0, $rootCause);
-        $finalException = new FaceDetectException(
+        $finalException = new VerificationException(
             'Final error',
             FaceDetectException::ERROR_SERVICE_UNAVAILABLE,
             $intermediateCause
@@ -340,7 +345,7 @@ class FaceDetectExceptionTest extends TestCase
         $this->assertNull($finalException->getPrevious()->getPrevious()->getPrevious());
     }
 
-    public function test_special_characters_in_factory_methods(): void
+    public function testSpecialCharactersInFactoryMethods(): void
     {
         // Arrange
         $parameterWithSpecialChars = 'user@domain.com';
@@ -348,13 +353,13 @@ class FaceDetectExceptionTest extends TestCase
         $serviceWithSpecialChars = 'Service-Name_123';
 
         // Act
-        $parameterException = FaceDetectException::invalidParameter($parameterWithSpecialChars);
-        $configException = FaceDetectException::configurationMissing($configWithSpecialChars);
-        $serviceException = FaceDetectException::serviceUnavailable($serviceWithSpecialChars);
+        $parameterException = VerificationException::invalidParameter($parameterWithSpecialChars);
+        $configException = VerificationException::configurationMissing($configWithSpecialChars);
+        $serviceException = VerificationException::serviceUnavailable($serviceWithSpecialChars);
 
         // Assert
         $this->assertStringContainsString($parameterWithSpecialChars, $parameterException->getMessage());
         $this->assertStringContainsString($configWithSpecialChars, $configException->getMessage());
         $this->assertStringContainsString($serviceWithSpecialChars, $serviceException->getMessage());
     }
-} 
+}

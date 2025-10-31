@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Enum;
 
 use Tourze\EnumExtra\Itemable;
@@ -11,19 +13,24 @@ use Tourze\EnumExtra\SelectTrait;
 /**
  * 操作状态枚举
  */
-enum OperationStatus: string implements Itemable, Labelable, Selectable
+enum OperationStatus: string implements Labelable, Itemable, Selectable
 {
     use ItemTrait;
     use SelectTrait;
-    case PENDING = 'pending';        // 等待中
-    case PROCESSING = 'processing';  // 处理中
-    case COMPLETED = 'completed';    // 已完成
-    case FAILED = 'failed';          // 失败
-    case CANCELLED = 'cancelled';    // 已取消
+    case PENDING = 'pending';
+    case PROCESSING = 'processing';
+    case COMPLETED = 'completed';
+    case FAILED = 'failed';
+    case CANCELLED = 'cancelled';
 
     public function getLabel(): string
     {
-        return match($this) {
+        return $this->getDescription();
+    }
+
+    public function getDescription(): string
+    {
+        return match ($this) {
             self::PENDING => '等待中',
             self::PROCESSING => '处理中',
             self::COMPLETED => '已完成',
@@ -32,27 +39,19 @@ enum OperationStatus: string implements Itemable, Labelable, Selectable
         };
     }
 
-    /**
-     * 获取状态描述
-     */
-    public function getDescription(): string
-    {
-        return $this->getLabel();
-    }
-
-    /**
-     * 检查是否为终态
-     */
     public function isFinal(): bool
     {
-        return $this === self::COMPLETED || $this === self::FAILED || $this === self::CANCELLED;
+        return match ($this) {
+            self::COMPLETED, self::FAILED, self::CANCELLED => true,
+            self::PENDING, self::PROCESSING => false,
+        };
     }
 
-    /**
-     * 检查是否为成功状态
-     */
     public function isSuccessful(): bool
     {
-        return $this === self::COMPLETED;
+        return match ($this) {
+            self::COMPLETED => true,
+            self::PENDING, self::PROCESSING, self::FAILED, self::CANCELLED => false,
+        };
     }
 }

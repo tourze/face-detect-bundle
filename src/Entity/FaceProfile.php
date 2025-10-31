@@ -1,58 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
 use Tourze\FaceDetectBundle\Repository\FaceProfileRepository;
 
-/**
- * 人脸档案实体
- * 存储用户的人脸特征数据和相关信息
- */
 #[ORM\Entity(repositoryClass: FaceProfileRepository::class)]
 #[ORM\Table(name: 'face_profiles', options: ['comment' => '人脸档案表'])]
-#[ORM\Index(name: 'idx_status', columns: ['status'])]
-#[ORM\Index(name: 'idx_expires_time', columns: ['expires_time'])]
 #[ORM\UniqueConstraint(name: 'uk_user_id', columns: ['user_id'])]
 class FaceProfile implements \Stringable
 {
     use TimestampableAware;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
     private ?int $id = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 64)]
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false, options: ['comment' => '用户ID'])]
-    private string $userId;
+    private string $userId = '';
 
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 65535)]
     #[TrackColumn]
     #[ORM\Column(type: Types::TEXT, nullable: false, options: ['comment' => '加密的人脸特征数据'])]
-    private string $faceFeatures;
+    private string $faceFeatures = '';
 
+    #[Assert\Range(min: 0, max: 1)]
     #[ORM\Column(type: Types::DECIMAL, precision: 3, scale: 2, options: ['default' => '0.00', 'comment' => '人脸质量评分(0-1)'])]
     private float $qualityScore = 0.00;
 
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 32)]
+    #[Assert\Choice(choices: ['manual', 'auto', 'import'])]
     #[ORM\Column(type: Types::STRING, length: 32, options: ['default' => 'manual', 'comment' => '采集方式: manual, auto, import'])]
     private string $collectionMethod = 'manual';
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    #[Assert\Type(type: 'array')]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '采集设备信息'])]
     private ?array $deviceInfo = null;
 
+    #[IndexColumn]
+    #[Assert\Choice(callback: [FaceProfileStatus::class, 'cases'])]
     #[ORM\Column(type: Types::STRING, length: 16, enumType: FaceProfileStatus::class, options: ['default' => 'active', 'comment' => '状态'])]
     private FaceProfileStatus $status = FaceProfileStatus::ACTIVE;
 
+    #[IndexColumn]
+    #[Assert\Type(type: '\DateTimeImmutable')]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['comment' => '过期时间'])]
     private ?\DateTimeImmutable $expiresTime = null;
 
-
-    public function __construct(string $userId, string $faceFeatures)
+    public function __construct()
     {
-        $this->userId = $userId;
-        $this->faceFeatures = $faceFeatures;
     }
 
     public function __toString(): string
@@ -70,15 +82,19 @@ class FaceProfile implements \Stringable
         return $this->userId;
     }
 
+    public function setUserId(?string $userId): void
+    {
+        $this->userId = $userId ?? '';
+    }
+
     public function getFaceFeatures(): string
     {
         return $this->faceFeatures;
     }
 
-    public function setFaceFeatures(string $faceFeatures): self
+    public function setFaceFeatures(?string $faceFeatures): void
     {
-        $this->faceFeatures = $faceFeatures;
-        return $this;
+        $this->faceFeatures = $faceFeatures ?? '';
     }
 
     public function getQualityScore(): float
@@ -86,10 +102,9 @@ class FaceProfile implements \Stringable
         return $this->qualityScore;
     }
 
-    public function setQualityScore(float $qualityScore): self
+    public function setQualityScore(?float $qualityScore): void
     {
-        $this->qualityScore = $qualityScore;
-        return $this;
+        $this->qualityScore = $qualityScore ?? 0.00;
     }
 
     public function getCollectionMethod(): string
@@ -97,21 +112,25 @@ class FaceProfile implements \Stringable
         return $this->collectionMethod;
     }
 
-    public function setCollectionMethod(string $collectionMethod): self
+    public function setCollectionMethod(?string $collectionMethod): void
     {
-        $this->collectionMethod = $collectionMethod;
-        return $this;
+        $this->collectionMethod = $collectionMethod ?? 'manual';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getDeviceInfo(): ?array
     {
         return $this->deviceInfo;
     }
 
-    public function setDeviceInfo(?array $deviceInfo): self
+    /**
+     * @param array<string, mixed>|null $deviceInfo
+     */
+    public function setDeviceInfo(?array $deviceInfo): void
     {
         $this->deviceInfo = $deviceInfo;
-        return $this;
     }
 
     public function getStatus(): FaceProfileStatus
@@ -119,10 +138,9 @@ class FaceProfile implements \Stringable
         return $this->status;
     }
 
-    public function setStatus(FaceProfileStatus $status): self
+    public function setStatus(FaceProfileStatus $status): void
     {
         $this->status = $status;
-        return $this;
     }
 
     public function getExpiresTime(): ?\DateTimeImmutable
@@ -130,36 +148,27 @@ class FaceProfile implements \Stringable
         return $this->expiresTime;
     }
 
-    public function setExpiresTime(?\DateTimeImmutable $expiresTime): self
+    public function setExpiresTime(?\DateTimeImmutable $expiresTime): void
     {
         $this->expiresTime = $expiresTime;
-        return $this;
-    }/**
-     * 检查人脸档案是否已过期
-     */
+    }
+
     public function isExpired(): bool
     {
-        if ($this->expiresTime === null) {
+        if (null === $this->expiresTime) {
             return false;
         }
 
         return $this->expiresTime < new \DateTimeImmutable();
     }
 
-    /**
-     * 检查人脸档案是否可用
-     */
     public function isAvailable(): bool
     {
-        return $this->status === FaceProfileStatus::ACTIVE && !$this->isExpired();
+        return FaceProfileStatus::ACTIVE === $this->status && !$this->isExpired();
     }
 
-    /**
-     * 设置过期时间（从现在开始计算）
-     */
-    public function setExpiresAfter(\DateInterval $interval): self
+    public function setExpiresAfter(\DateInterval $interval): void
     {
         $this->expiresTime = (new \DateTimeImmutable())->add($interval);
-        return $this;
     }
-} 
+}

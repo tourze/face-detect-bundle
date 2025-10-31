@@ -36,9 +36,9 @@ class VerificationException extends FaceDetectException
     public function __construct(
         string $message = '',
         int $code = self::ERROR_VERIFICATION_FAILED,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
-        if (empty($message) && isset(self::ERROR_MESSAGES[$code])) {
+        if ('' === $message && isset(self::ERROR_MESSAGES[$code])) {
             $message = self::ERROR_MESSAGES[$code];
         }
 
@@ -110,4 +110,41 @@ class VerificationException extends FaceDetectException
             self::ERROR_VERIFICATION_TIMEOUT
         );
     }
-} 
+
+    /**
+     * 创建参数无效异常
+     */
+    public static function invalidParameter(string $parameter, string $reason = ''): self
+    {
+        $message = "参数 '{$parameter}' 无效";
+        if ('' !== $reason) {
+            $message .= ": {$reason}";
+        }
+
+        return new self($message, self::ERROR_INVALID_PARAMETER);
+    }
+
+    /**
+     * 创建配置缺失异常
+     */
+    public static function configurationMissing(string $configKey): self
+    {
+        return new self(
+            "配置项 '{$configKey}' 缺失",
+            self::ERROR_CONFIGURATION_MISSING
+        );
+    }
+
+    /**
+     * 创建服务不可用异常
+     */
+    public static function serviceUnavailable(string $service, string $reason = ''): self
+    {
+        $message = "服务 '{$service}' 不可用";
+        if ('' !== $reason) {
+            $message .= ": {$reason}";
+        }
+
+        return new self($message, self::ERROR_SERVICE_UNAVAILABLE);
+    }
+}

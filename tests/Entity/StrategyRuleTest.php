@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tourze\FaceDetectBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Entity\StrategyRule;
 use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
 /**
  * StrategyRule 实体单元测试
@@ -18,16 +19,60 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
  * - 时间戳更新机制
  * - 业务逻辑方法
  * - 边界条件和异常场景
+ *
+ * @internal
  */
-class StrategyRuleTest extends TestCase
+#[CoversClass(StrategyRule::class)]
+final class StrategyRuleTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        $rule = new StrategyRule();
+        $rule->setRuleType('test_rule_type');
+        $rule->setRuleName('test_rule_name');
+        $rule->setConditions(['condition1' => 'value1']);
+        $rule->setActions(['action1' => 'result1']);
+
+        return $rule;
+    }
+
+    /**
+     * 创建StrategyRule实体的辅助方法，使用setter方法设置属性
+     *
+     * @param array<string, mixed> $conditions
+     * @param array<string, mixed> $actions
+     */
+    private function createStrategyRule(string $ruleType, string $ruleName, array $conditions = [], array $actions = []): StrategyRule
+    {
+        $rule = new StrategyRule();
+        $rule->setRuleType($ruleType);
+        $rule->setRuleName($ruleName);
+        $rule->setConditions($conditions);
+        $rule->setActions($actions);
+
+        return $rule;
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'ruleType' => ['ruleType', 'new_rule_type'];
+        yield 'ruleName' => ['ruleName', 'new_rule_name'];
+        yield 'conditions' => ['conditions', ['new_condition' => 'new_value']];
+        yield 'actions' => ['actions', ['new_action' => 'new_result']];
+        yield 'priority' => ['priority', 10];
+        yield 'enabled' => ['enabled', false];
+    }
+
     /**
      * 测试构造函数创建基本规则
      */
     public function testConstructorWithMinimalParameters(): void
     {
         // Arrange & Act
-        $rule = new StrategyRule('time', 'Working Hours Rule');
+        $rule = $this->createStrategyRule('time', 'Working Hours Rule');
 
         // Assert
         $this->assertSame('time', $rule->getRuleType());
@@ -51,7 +96,7 @@ class StrategyRuleTest extends TestCase
         $actions = ['block' => true, 'message' => 'Outside working hours'];
 
         // Act
-        $rule = new StrategyRule('time', 'Working Hours Rule', $conditions, $actions);
+        $rule = $this->createStrategyRule('time', 'Working Hours Rule', $conditions, $actions);
 
         // Assert
         $this->assertSame('time', $rule->getRuleType());
@@ -66,7 +111,7 @@ class StrategyRuleTest extends TestCase
     public function testConstructorWithEmptyStrings(): void
     {
         // Arrange & Act
-        $rule = new StrategyRule('', '');
+        $rule = $this->createStrategyRule('', '');
 
         // Assert
         $this->assertSame('', $rule->getRuleType());
@@ -79,7 +124,7 @@ class StrategyRuleTest extends TestCase
     public function testToStringWithoutId(): void
     {
         // Arrange
-        $rule = new StrategyRule('frequency', 'Rate Limit Rule');
+        $rule = $this->createStrategyRule('frequency', 'Rate Limit Rule');
 
         // Act
         $result = (string) $rule;
@@ -94,8 +139,8 @@ class StrategyRuleTest extends TestCase
     public function testToStringWithId(): void
     {
         // Arrange
-        $rule = new StrategyRule('risk', 'High Risk Check');
-        
+        $rule = $this->createStrategyRule('risk', 'High Risk Check');
+
         // 使用反射设置ID
         $reflection = new \ReflectionClass($rule);
         $idProperty = $reflection->getProperty('id');
@@ -114,15 +159,20 @@ class StrategyRuleTest extends TestCase
     public function testStrategyRelationship(): void
     {
         // Arrange
-        $rule = new StrategyRule('amount', 'Amount Limit Rule');
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $strategy */
+        $rule = $this->createStrategyRule('amount', 'Amount Limit Rule');
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 StrategyRule 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $strategy = $this->createMock(VerificationStrategy::class);
 
         // Act
-        $result = $rule->setStrategy($strategy);
+        $rule->setStrategy($strategy);
 
         // Assert
-        $this->assertSame($rule, $result); // 测试链式调用
         $this->assertSame($strategy, $rule->getStrategy());
     }
 
@@ -132,8 +182,14 @@ class StrategyRuleTest extends TestCase
     public function testStrategyRelationshipSetToNull(): void
     {
         // Arrange
-        $rule = new StrategyRule('time', 'Test Rule');
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $strategy */
+        $rule = $this->createStrategyRule('time', 'Test Rule');
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 StrategyRule 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $strategy = $this->createMock(VerificationStrategy::class);
         $rule->setStrategy($strategy);
 
@@ -150,13 +206,12 @@ class StrategyRuleTest extends TestCase
     public function testSetRuleType(): void
     {
         // Arrange
-        $rule = new StrategyRule('time', 'Test Rule');
+        $rule = $this->createStrategyRule('time', 'Test Rule');
 
         // Act
-        $result = $rule->setRuleType('frequency');
+        $rule->setRuleType('frequency');
 
         // Assert
-        $this->assertSame($rule, $result); // 测试链式调用
         $this->assertSame('frequency', $rule->getRuleType());
     }
 
@@ -166,13 +221,12 @@ class StrategyRuleTest extends TestCase
     public function testSetRuleName(): void
     {
         // Arrange
-        $rule = new StrategyRule('risk', 'Original Name');
+        $rule = $this->createStrategyRule('risk', 'Original Name');
 
         // Act
-        $result = $rule->setRuleName('Updated Name');
+        $rule->setRuleName('Updated Name');
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertSame('Updated Name', $rule->getRuleName());
     }
 
@@ -182,14 +236,13 @@ class StrategyRuleTest extends TestCase
     public function testSetConditions(): void
     {
         // Arrange
-        $rule = new StrategyRule('amount', 'Amount Rule');
+        $rule = $this->createStrategyRule('amount', 'Amount Rule');
         $newConditions = ['min_amount' => 100, 'max_amount' => 10000];
 
         // Act
-        $result = $rule->setConditions($newConditions);
+        $rule->setConditions($newConditions);
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertSame($newConditions, $rule->getConditions());
     }
 
@@ -199,14 +252,13 @@ class StrategyRuleTest extends TestCase
     public function testSetActions(): void
     {
         // Arrange
-        $rule = new StrategyRule('frequency', 'Rate Rule');
+        $rule = $this->createStrategyRule('frequency', 'Rate Rule');
         $newActions = ['block' => true, 'wait_seconds' => 60];
 
         // Act
-        $result = $rule->setActions($newActions);
+        $rule->setActions($newActions);
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertSame($newActions, $rule->getActions());
     }
 
@@ -216,13 +268,12 @@ class StrategyRuleTest extends TestCase
     public function testSetEnabled(): void
     {
         // Arrange
-        $rule = new StrategyRule('time', 'Time Rule');
+        $rule = $this->createStrategyRule('time', 'Time Rule');
 
         // Act
-        $result = $rule->setEnabled(false);
+        $rule->setEnabled(false);
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertFalse($rule->isEnabled());
     }
 
@@ -232,13 +283,12 @@ class StrategyRuleTest extends TestCase
     public function testSetPriority(): void
     {
         // Arrange
-        $rule = new StrategyRule('risk', 'Risk Rule');
+        $rule = $this->createStrategyRule('risk', 'Risk Rule');
 
         // Act
-        $result = $rule->setPriority(100);
+        $rule->setPriority(100);
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertSame(100, $rule->getPriority());
     }
 
@@ -248,7 +298,7 @@ class StrategyRuleTest extends TestCase
     public function testSetNegativePriority(): void
     {
         // Arrange
-        $rule = new StrategyRule('amount', 'Amount Rule');
+        $rule = $this->createStrategyRule('amount', 'Amount Rule');
 
         // Act
         $rule->setPriority(-10);
@@ -264,7 +314,7 @@ class StrategyRuleTest extends TestCase
     {
         // Arrange
         $conditions = ['min_value' => 100, 'max_value' => 1000, 'enabled' => true];
-        $rule = new StrategyRule('amount', 'Amount Rule', $conditions);
+        $rule = $this->createStrategyRule('amount', 'Amount Rule', $conditions);
 
         // Act & Assert
         $this->assertSame(100, $rule->getConditionValue('min_value'));
@@ -278,7 +328,7 @@ class StrategyRuleTest extends TestCase
     public function testGetConditionValueNonExistingKeyWithDefault(): void
     {
         // Arrange
-        $rule = new StrategyRule('frequency', 'Rate Rule');
+        $rule = $this->createStrategyRule('frequency', 'Rate Rule');
 
         // Act & Assert
         $this->assertSame('default', $rule->getConditionValue('non_existing', 'default'));
@@ -292,13 +342,12 @@ class StrategyRuleTest extends TestCase
     public function testSetConditionValue(): void
     {
         // Arrange
-        $rule = new StrategyRule('time', 'Time Rule');
+        $rule = $this->createStrategyRule('time', 'Time Rule');
 
         // Act
-        $result = $rule->setConditionValue('start_time', '09:00');
+        $rule->setConditionValue('start_time', '09:00');
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertSame('09:00', $rule->getConditionValue('start_time'));
     }
 
@@ -308,12 +357,12 @@ class StrategyRuleTest extends TestCase
     public function testSetMultipleConditionValues(): void
     {
         // Arrange
-        $rule = new StrategyRule('risk', 'Risk Rule');
+        $rule = $this->createStrategyRule('risk', 'Risk Rule');
 
         // Act
-        $rule->setConditionValue('score_threshold', 80)
-             ->setConditionValue('ip_whitelist', ['192.168.1.1', '10.0.0.1'])
-             ->setConditionValue('check_enabled', true);
+        $rule->setConditionValue('score_threshold', 80);
+        $rule->setConditionValue('ip_whitelist', ['192.168.1.1', '10.0.0.1']);
+        $rule->setConditionValue('check_enabled', true);
 
         // Assert
         $this->assertSame(80, $rule->getConditionValue('score_threshold'));
@@ -328,7 +377,7 @@ class StrategyRuleTest extends TestCase
     {
         // Arrange
         $actions = ['block' => true, 'message' => 'Access denied', 'code' => 403];
-        $rule = new StrategyRule('frequency', 'Rate Rule', [], $actions);
+        $rule = $this->createStrategyRule('frequency', 'Rate Rule', [], $actions);
 
         // Act & Assert
         $this->assertTrue($rule->getActionValue('block'));
@@ -342,7 +391,7 @@ class StrategyRuleTest extends TestCase
     public function testGetActionValueNonExistingKeyWithDefault(): void
     {
         // Arrange
-        $rule = new StrategyRule('amount', 'Amount Rule');
+        $rule = $this->createStrategyRule('amount', 'Amount Rule');
 
         // Act & Assert
         $this->assertSame('fallback', $rule->getActionValue('non_existing', 'fallback'));
@@ -356,13 +405,12 @@ class StrategyRuleTest extends TestCase
     public function testSetActionValue(): void
     {
         // Arrange
-        $rule = new StrategyRule('frequency', 'Rate Rule');
+        $rule = $this->createStrategyRule('frequency', 'Rate Rule');
 
         // Act
-        $result = $rule->setActionValue('block', true);
+        $rule->setActionValue('block', true);
 
         // Assert
-        $this->assertSame($rule, $result);
         $this->assertTrue($rule->getActionValue('block'));
     }
 
@@ -372,12 +420,12 @@ class StrategyRuleTest extends TestCase
     public function testSetMultipleActionValues(): void
     {
         // Arrange
-        $rule = new StrategyRule('risk', 'Risk Rule');
+        $rule = $this->createStrategyRule('risk', 'Risk Rule');
 
         // Act
-        $rule->setActionValue('block', true)
-             ->setActionValue('redirect_url', '/security/warning')
-             ->setActionValue('log_level', 'warning');
+        $rule->setActionValue('block', true);
+        $rule->setActionValue('redirect_url', '/security/warning');
+        $rule->setActionValue('log_level', 'warning');
 
         // Assert
         $this->assertTrue($rule->getActionValue('block'));
@@ -391,8 +439,14 @@ class StrategyRuleTest extends TestCase
     public function testIsUsableWhenEnabledWithEnabledStrategy(): void
     {
         // Arrange
-        $rule = new StrategyRule('time', 'Time Rule');
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $strategy */
+        $rule = $this->createStrategyRule('time', 'Time Rule');
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 StrategyRule 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $strategy = $this->createMock(VerificationStrategy::class);
         $strategy->method('isEnabled')->willReturn(true);
         $rule->setStrategy($strategy);
@@ -407,8 +461,14 @@ class StrategyRuleTest extends TestCase
     public function testIsUsableWhenEnabledWithDisabledStrategy(): void
     {
         // Arrange
-        $rule = new StrategyRule('frequency', 'Rate Rule');
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $strategy */
+        $rule = $this->createStrategyRule('frequency', 'Rate Rule');
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 StrategyRule 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $strategy = $this->createMock(VerificationStrategy::class);
         $strategy->method('isEnabled')->willReturn(false);
         $rule->setStrategy($strategy);
@@ -423,9 +483,15 @@ class StrategyRuleTest extends TestCase
     public function testIsUsableWhenDisabled(): void
     {
         // Arrange
-        $rule = new StrategyRule('risk', 'Risk Rule');
+        $rule = $this->createStrategyRule('risk', 'Risk Rule');
         $rule->setEnabled(false);
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $strategy */
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 StrategyRule 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $strategy = $this->createMock(VerificationStrategy::class);
         $strategy->method('isEnabled')->willReturn(true);
         $rule->setStrategy($strategy);
@@ -440,7 +506,7 @@ class StrategyRuleTest extends TestCase
     public function testIsUsableWithoutStrategy(): void
     {
         // Arrange
-        $rule = new StrategyRule('amount', 'Amount Rule');
+        $rule = $this->createStrategyRule('amount', 'Amount Rule');
 
         // Act & Assert
         $this->assertFalse($rule->isUsable());
@@ -456,40 +522,42 @@ class StrategyRuleTest extends TestCase
             'time_range' => ['start' => '09:00', 'end' => '17:00'],
             'ip_rules' => [
                 'whitelist' => ['192.168.1.0/24'],
-                'blacklist' => ['10.0.0.100']
+                'blacklist' => ['10.0.0.100'],
             ],
             'thresholds' => [
                 'min_amount' => 1,
                 'max_amount' => 10000,
-                'daily_limit' => 5
-            ]
+                'daily_limit' => 5,
+            ],
         ];
-        
+
         $complexActions = [
             'primary' => [
                 'action' => 'block',
-                'message' => 'Verification required'
+                'message' => 'Verification required',
             ],
             'fallback' => [
                 'action' => 'allow',
-                'conditions' => ['user_verified' => true]
+                'conditions' => ['user_verified' => true],
             ],
             'logging' => [
                 'level' => 'warning',
-                'include_details' => true
-            ]
+                'include_details' => true,
+            ],
         ];
 
         // Act
-        $rule = new StrategyRule('complex', 'Complex Rule', $complexConditions, $complexActions);
+        $rule = $this->createStrategyRule('complex', 'Complex Rule', $complexConditions, $complexActions);
 
         // Assert
         $this->assertSame($complexConditions, $rule->getConditions());
         $this->assertSame($complexActions, $rule->getActions());
-        
+
         // 测试嵌套访问
         $this->assertSame(['start' => '09:00', 'end' => '17:00'], $rule->getConditionValue('time_range'));
-        $this->assertSame('block', $rule->getActionValue('primary')['action']);
+        $primaryAction = $rule->getActionValue('primary');
+        $this->assertIsArray($primaryAction);
+        $this->assertSame('block', $primaryAction['action']);
     }
 
     /**
@@ -498,7 +566,7 @@ class StrategyRuleTest extends TestCase
     public function testExtremePriorityValues(): void
     {
         // Arrange
-        $rule = new StrategyRule('test', 'Test Rule');
+        $rule = $this->createStrategyRule('test', 'Test Rule');
 
         // Act & Assert - 极大正数
         $rule->setPriority(PHP_INT_MAX);
@@ -515,23 +583,23 @@ class StrategyRuleTest extends TestCase
     public function testEmptyArraysAndNullValues(): void
     {
         // Arrange
-        $rule = new StrategyRule('empty', 'Empty Rule');
+        $rule = $this->createStrategyRule('empty', 'Empty Rule');
 
         // Act
-        $rule->setConditions([])
-             ->setActions([])
-             ->setConditionValue('null_value', null)
-             ->setActionValue('empty_array', []);
+        $rule->setConditions([]);
+        $rule->setActions([]);
+        $rule->setConditionValue('null_value', null);
+        $rule->setActionValue('empty_array', []);
 
         // Assert
         $this->assertNull($rule->getConditionValue('null_value'));
         $this->assertSame([], $rule->getActionValue('empty_array'));
-        
+
         // 检查条件数组包含了null_value
         $conditions = $rule->getConditions();
         $this->assertArrayHasKey('null_value', $conditions);
         $this->assertNull($conditions['null_value']);
-        
+
         // 检查动作数组包含了empty_array
         $actions = $rule->getActions();
         $this->assertArrayHasKey('empty_array', $actions);
@@ -544,10 +612,10 @@ class StrategyRuleTest extends TestCase
     public function testTimestampInitialValues(): void
     {
         // Arrange
-        $rule = new StrategyRule('time', 'Time Rule');
+        $rule = $this->createStrategyRule('time', 'Time Rule');
 
         // Assert - 新创建的实体时间戳应该为null，直到被持久化
         $this->assertNull($rule->getCreateTime());
         $this->assertNull($rule->getUpdateTime());
     }
-} 
+}

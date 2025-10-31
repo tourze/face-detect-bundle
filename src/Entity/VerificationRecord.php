@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\CreateTimeAware;
 use Tourze\FaceDetectBundle\Enum\VerificationResult;
 use Tourze\FaceDetectBundle\Enum\VerificationType;
@@ -15,72 +19,79 @@ use Tourze\FaceDetectBundle\Repository\VerificationRecordRepository;
  */
 #[ORM\Entity(repositoryClass: VerificationRecordRepository::class)]
 #[ORM\Table(name: 'verification_records', options: ['comment' => '验证记录表'])]
-#[ORM\Index(name: 'idx_user_id', columns: ['user_id'])]
-#[ORM\Index(name: 'idx_strategy_id', columns: ['strategy_id'])]
-#[ORM\Index(name: 'idx_business_type', columns: ['business_type'])]
-#[ORM\Index(name: 'idx_operation_id', columns: ['operation_id'])]
-#[ORM\Index(name: 'idx_result', columns: ['result'])]
-#[ORM\Index(name: 'idx_create_time', columns: ['create_time'])]
-#[ORM\Index(name: 'idx_user_verification_history', columns: ['user_id', 'create_time'])]
-#[ORM\Index(name: 'idx_business_verification_stats', columns: ['business_type', 'result', 'create_time'])]
+#[ORM\Index(name: 'verification_records_idx_user_verification_history', columns: ['user_id', 'create_time'])]
+#[ORM\Index(name: 'verification_records_idx_business_verification_stats', columns: ['business_type', 'result', 'create_time'])]
 class VerificationRecord implements \Stringable
 {
     use CreateTimeAware;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT, options: ['comment' => 'ID'])]
     private ?int $id = null;
 
+    #[IndexColumn]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 64)]
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false, options: ['comment' => '用户ID'])]
-    private string $userId;
+    private string $userId = '';
 
+    #[Assert\NotNull]
     #[ORM\ManyToOne(targetEntity: VerificationStrategy::class, inversedBy: 'verificationRecords')]
     #[ORM\JoinColumn(name: 'strategy_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
-    private VerificationStrategy $strategy;
+    private ?VerificationStrategy $strategy = null;
 
+    #[IndexColumn]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 64)]
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false, options: ['comment' => '业务类型'])]
-    private string $businessType;
+    private string $businessType = '';
 
+    #[IndexColumn]
+    #[Assert\Length(max: 128)]
     #[ORM\Column(type: Types::STRING, length: 128, nullable: true, options: ['comment' => '关联的业务操作ID'])]
     private ?string $operationId = null;
 
+    #[Assert\Choice(callback: [VerificationType::class, 'cases'])]
     #[ORM\Column(type: Types::STRING, length: 16, enumType: VerificationType::class, options: ['default' => 'required', 'comment' => '验证类型'])]
     private VerificationType $verificationType = VerificationType::REQUIRED;
 
+    #[IndexColumn]
+    #[Assert\Choice(callback: [VerificationResult::class, 'cases'])]
     #[ORM\Column(type: Types::STRING, length: 16, enumType: VerificationResult::class, nullable: false, options: ['comment' => '验证结果'])]
-    private VerificationResult $result;
+    private ?VerificationResult $result = null;
 
+    #[Assert\Range(min: 0, max: 1)]
     #[ORM\Column(type: Types::DECIMAL, precision: 3, scale: 2, nullable: true, options: ['comment' => '置信度评分(0-1)'])]
     private ?float $confidenceScore = null;
 
+    #[Assert\GreaterThan(value: 0)]
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 3, nullable: true, options: ['comment' => '验证耗时(秒)'])]
     private ?float $verificationTime = null;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    #[Assert\Type(type: 'array')]
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '客户端信息'])]
     private ?array $clientInfo = null;
 
+    #[Assert\Length(max: 32)]
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true, options: ['comment' => '错误码'])]
     private ?string $errorCode = null;
 
+    #[Assert\Type(type: 'string')]
+    #[Assert\Length(max: 65535)]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '错误信息'])]
     private ?string $errorMessage = null;
 
-
-    public function __construct(
-        string $userId,
-        VerificationStrategy $strategy,
-        string $businessType,
-        VerificationResult $result
-    ) {
-        $this->userId = $userId;
-        $this->strategy = $strategy;
-        $this->businessType = $businessType;
-        $this->result = $result;
+    public function __construct()
+    {
     }
 
     public function __toString(): string
     {
-        return sprintf('VerificationRecord[%d]: %s - %s', $this->id ?? 0, $this->userId, $this->result->value);
+        return sprintf('VerificationRecord[%d]: %s - %s', $this->id ?? 0, $this->userId, $this->result->value ?? 'unknown');
     }
 
     public function getId(): ?int
@@ -93,15 +104,19 @@ class VerificationRecord implements \Stringable
         return $this->userId;
     }
 
-    public function getStrategy(): VerificationStrategy
+    public function setUserId(string $userId): void
+    {
+        $this->userId = $userId;
+    }
+
+    public function getStrategy(): ?VerificationStrategy
     {
         return $this->strategy;
     }
 
-    public function setStrategy(VerificationStrategy $strategy): self
+    public function setStrategy(?VerificationStrategy $strategy): void
     {
         $this->strategy = $strategy;
-        return $this;
     }
 
     public function getBusinessType(): string
@@ -109,10 +124,9 @@ class VerificationRecord implements \Stringable
         return $this->businessType;
     }
 
-    public function setBusinessType(string $businessType): self
+    public function setBusinessType(string $businessType): void
     {
         $this->businessType = $businessType;
-        return $this;
     }
 
     public function getOperationId(): ?string
@@ -120,10 +134,9 @@ class VerificationRecord implements \Stringable
         return $this->operationId;
     }
 
-    public function setOperationId(?string $operationId): self
+    public function setOperationId(?string $operationId): void
     {
         $this->operationId = $operationId;
-        return $this;
     }
 
     public function getVerificationType(): VerificationType
@@ -131,21 +144,19 @@ class VerificationRecord implements \Stringable
         return $this->verificationType;
     }
 
-    public function setVerificationType(VerificationType $verificationType): self
+    public function setVerificationType(VerificationType $verificationType): void
     {
         $this->verificationType = $verificationType;
-        return $this;
     }
 
-    public function getResult(): VerificationResult
+    public function getResult(): ?VerificationResult
     {
         return $this->result;
     }
 
-    public function setResult(VerificationResult $result): self
+    public function setResult(?VerificationResult $result): void
     {
         $this->result = $result;
-        return $this;
     }
 
     public function getConfidenceScore(): ?float
@@ -153,10 +164,9 @@ class VerificationRecord implements \Stringable
         return $this->confidenceScore;
     }
 
-    public function setConfidenceScore(?float $confidenceScore): self
+    public function setConfidenceScore(?float $confidenceScore): void
     {
         $this->confidenceScore = $confidenceScore;
-        return $this;
     }
 
     public function getVerificationTime(): ?float
@@ -164,21 +174,25 @@ class VerificationRecord implements \Stringable
         return $this->verificationTime;
     }
 
-    public function setVerificationTime(?float $verificationTime): self
+    public function setVerificationTime(?float $verificationTime): void
     {
         $this->verificationTime = $verificationTime;
-        return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getClientInfo(): ?array
     {
         return $this->clientInfo;
     }
 
-    public function setClientInfo(?array $clientInfo): self
+    /**
+     * @param array<string, mixed>|null $clientInfo
+     */
+    public function setClientInfo(?array $clientInfo): void
     {
         $this->clientInfo = $clientInfo;
-        return $this;
     }
 
     public function getErrorCode(): ?string
@@ -186,10 +200,9 @@ class VerificationRecord implements \Stringable
         return $this->errorCode;
     }
 
-    public function setErrorCode(?string $errorCode): self
+    public function setErrorCode(?string $errorCode): void
     {
         $this->errorCode = $errorCode;
-        return $this;
     }
 
     public function getErrorMessage(): ?string
@@ -197,19 +210,17 @@ class VerificationRecord implements \Stringable
         return $this->errorMessage;
     }
 
-    public function setErrorMessage(?string $errorMessage): self
+    public function setErrorMessage(?string $errorMessage): void
     {
         $this->errorMessage = $errorMessage;
-        return $this;
     }
-
 
     /**
      * 检查验证是否成功
      */
     public function isSuccessful(): bool
     {
-        return $this->result === VerificationResult::SUCCESS;
+        return VerificationResult::SUCCESS === $this->result;
     }
 
     /**
@@ -217,17 +228,16 @@ class VerificationRecord implements \Stringable
      */
     public function isFailed(): bool
     {
-        return $this->result === VerificationResult::FAILED;
+        return VerificationResult::FAILED === $this->result;
     }
 
     /**
      * 设置错误信息
      */
-    public function setError(string $errorCode, string $errorMessage): self
+    public function setError(string $errorCode, string $errorMessage): void
     {
         $this->errorCode = $errorCode;
         $this->errorMessage = $errorMessage;
-        return $this;
     }
 
     /**
@@ -241,12 +251,11 @@ class VerificationRecord implements \Stringable
     /**
      * 设置客户端信息的特定值
      */
-    public function setClientInfoValue(string $key, mixed $value): self
+    public function setClientInfoValue(string $key, mixed $value): void
     {
-        if ($this->clientInfo === null) {
+        if (null === $this->clientInfo) {
             $this->clientInfo = [];
         }
         $this->clientInfo[$key] = $value;
-        return $this;
     }
 }

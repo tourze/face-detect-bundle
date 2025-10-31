@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tourze\FaceDetectBundle\Tests\Exception;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Exception\FaceCollectionException;
 use Tourze\FaceDetectBundle\Exception\FaceDetectException;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 
 /**
  * FaceCollectionException 异常类单元测试
@@ -16,8 +17,11 @@ use Tourze\FaceDetectBundle\Exception\FaceDetectException;
  * - 工厂方法创建特定异常
  * - 异常继承关系
  * - 边界条件和特殊场景
+ *
+ * @internal
  */
-class FaceCollectionExceptionTest extends TestCase
+#[CoversClass(FaceCollectionException::class)]
+final class FaceCollectionExceptionTest extends AbstractExceptionTestCase
 {
     /**
      * 测试构造函数默认行为
@@ -136,7 +140,7 @@ class FaceCollectionExceptionTest extends TestCase
         // Assert
         $this->assertInstanceOf(FaceCollectionException::class, $exception);
         $this->assertStringContainsString('检测到', $exception->getMessage());
-        $this->assertStringContainsString((string)$faceCount, $exception->getMessage());
+        $this->assertStringContainsString((string) $faceCount, $exception->getMessage());
         $this->assertStringContainsString('张人脸', $exception->getMessage());
         $this->assertSame(FaceCollectionException::ERROR_MULTIPLE_FACES, $exception->getCode());
     }
@@ -152,7 +156,7 @@ class FaceCollectionExceptionTest extends TestCase
         // Act & Assert
         foreach ($testCases as $count) {
             $exception = FaceCollectionException::multipleFaces($count);
-            $this->assertStringContainsString((string)$count, $exception->getMessage());
+            $this->assertStringContainsString((string) $count, $exception->getMessage());
             $this->assertSame(FaceCollectionException::ERROR_MULTIPLE_FACES, $exception->getCode());
         }
     }
@@ -172,8 +176,8 @@ class FaceCollectionExceptionTest extends TestCase
         // Assert
         $this->assertInstanceOf(FaceCollectionException::class, $exception);
         $this->assertStringContainsString('人脸质量评分', $exception->getMessage());
-        $this->assertStringContainsString((string)$qualityScore, $exception->getMessage());
-        $this->assertStringContainsString((string)$threshold, $exception->getMessage());
+        $this->assertStringContainsString((string) $qualityScore, $exception->getMessage());
+        $this->assertStringContainsString((string) $threshold, $exception->getMessage());
         $this->assertStringContainsString('低于阈值', $exception->getMessage());
         $this->assertSame(FaceCollectionException::ERROR_FACE_QUALITY_LOW, $exception->getCode());
     }
@@ -244,7 +248,7 @@ class FaceCollectionExceptionTest extends TestCase
         $this->assertInstanceOf(FaceCollectionException::class, $exception);
         $this->assertStringContainsString('图片尺寸', $exception->getMessage());
         $this->assertStringContainsString("{$width}x{$height}", $exception->getMessage());
-        $this->assertStringContainsString((string)$maxSize, $exception->getMessage());
+        $this->assertStringContainsString((string) $maxSize, $exception->getMessage());
         $this->assertStringContainsString('超过限制', $exception->getMessage());
         $this->assertSame(FaceCollectionException::ERROR_IMAGE_SIZE_INVALID, $exception->getCode());
     }
@@ -265,7 +269,7 @@ class FaceCollectionExceptionTest extends TestCase
         foreach ($testCases as [$width, $height, $maxSize]) {
             $exception = FaceCollectionException::imageSizeInvalid($width, $height, $maxSize);
             $this->assertStringContainsString("{$width}x{$height}", $exception->getMessage());
-            $this->assertStringContainsString((string)$maxSize, $exception->getMessage());
+            $this->assertStringContainsString((string) $maxSize, $exception->getMessage());
         }
     }
 
@@ -406,7 +410,7 @@ class FaceCollectionExceptionTest extends TestCase
     {
         // Act & Assert - 空用户ID
         $exception1 = FaceCollectionException::faceAlreadyExists('');
-        $this->assertStringContainsString("用户  的", $exception1->getMessage());
+        $this->assertStringContainsString('用户  的', $exception1->getMessage());
 
         // Act & Assert - 空格式
         $exception2 = FaceCollectionException::imageFormatInvalid('');
@@ -432,12 +436,12 @@ class FaceCollectionExceptionTest extends TestCase
     {
         // Arrange
         $factoryMethods = [
-            fn() => FaceCollectionException::faceNotDetected(),
-            fn() => FaceCollectionException::multipleFaces(2),
-            fn() => FaceCollectionException::faceQualityLow(0.5, 0.8),
-            fn() => FaceCollectionException::imageFormatInvalid('bmp'),
-            fn() => FaceCollectionException::imageSizeInvalid(2000, 1500, 1000),
-            fn() => FaceCollectionException::faceAlreadyExists('user123'),
+            fn () => FaceCollectionException::faceNotDetected(),
+            fn () => FaceCollectionException::multipleFaces(2),
+            fn () => FaceCollectionException::faceQualityLow(0.5, 0.8),
+            fn () => FaceCollectionException::imageFormatInvalid('bmp'),
+            fn () => FaceCollectionException::imageSizeInvalid(2000, 1500, 1000),
+            fn () => FaceCollectionException::faceAlreadyExists('user123'),
         ];
 
         // Act & Assert
@@ -490,4 +494,4 @@ class FaceCollectionExceptionTest extends TestCase
         $this->assertStringContainsString('超过限制', $exception3->getMessage());
         $this->assertStringContainsString('1000', $exception3->getMessage());
     }
-} 
+}

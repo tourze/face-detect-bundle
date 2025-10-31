@@ -53,9 +53,9 @@ class BaiduAiException extends FaceDetectException
     public function __construct(
         string $message = '',
         int $code = self::ERROR_API_REQUEST_FAILED,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
-        if (empty($message) && isset(self::ERROR_MESSAGES[$code])) {
+        if ('' === $message && isset(self::ERROR_MESSAGES[$code])) {
             $message = self::ERROR_MESSAGES[$code];
         }
 
@@ -68,7 +68,7 @@ class BaiduAiException extends FaceDetectException
     public static function fromBaiduError(int $baiduErrorCode, string $baiduErrorMsg = ''): self
     {
         $code = self::BAIDU_ERROR_MAPPING[$baiduErrorCode] ?? self::ERROR_API_REQUEST_FAILED;
-        $message = !empty($baiduErrorMsg) ? $baiduErrorMsg : (self::ERROR_MESSAGES[$code] ?? '未知错误');
+        $message = '' !== $baiduErrorMsg ? $baiduErrorMsg : (self::ERROR_MESSAGES[$code] ?? '未知错误');
 
         return new self(
             "百度API错误 [{$baiduErrorCode}]: {$message}",
@@ -82,7 +82,7 @@ class BaiduAiException extends FaceDetectException
     public static function apiRequestFailed(string $endpoint, string $reason = ''): self
     {
         $message = "API请求失败: {$endpoint}";
-        if (!empty($reason)) {
+        if ('' !== $reason) {
             $message .= " - {$reason}";
         }
 
@@ -141,10 +141,10 @@ class BaiduAiException extends FaceDetectException
     public static function permissionDenied(string $operation = ''): self
     {
         $message = 'API权限不足';
-        if (!empty($operation)) {
+        if ('' !== $operation) {
             $message .= ": {$operation}";
         }
 
         return new self($message, self::ERROR_API_PERMISSION_DENIED);
     }
-} 
+}

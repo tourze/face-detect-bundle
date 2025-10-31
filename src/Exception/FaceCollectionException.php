@@ -36,9 +36,9 @@ class FaceCollectionException extends FaceDetectException
     public function __construct(
         string $message = '',
         int $code = self::ERROR_COLLECTION_FAILED,
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ) {
-        if (empty($message) && isset(self::ERROR_MESSAGES[$code])) {
+        if ('' === $message && isset(self::ERROR_MESSAGES[$code])) {
             $message = self::ERROR_MESSAGES[$code];
         }
 

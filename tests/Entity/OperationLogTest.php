@@ -2,16 +2,54 @@
 
 namespace Tourze\FaceDetectBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Entity\OperationLog;
 use Tourze\FaceDetectBundle\Enum\OperationStatus;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
 /**
  * OperationLog 实体测试类
+ *
+ * @internal
  */
-class OperationLogTest extends TestCase
+#[CoversClass(OperationLog::class)]
+final class OperationLogTest extends AbstractEntityTestCase
 {
-    public function test_construction_with_valid_data(): void
+    protected function createEntity(): object
+    {
+        $entity = new OperationLog();
+        $entity->setUserId('test_user');
+        $entity->setOperationId('test_operation');
+        $entity->setOperationType('test_type');
+
+        return $entity;
+    }
+
+    private function createOperationLog(string $userId, string $operationId, string $operationType): OperationLog
+    {
+        $log = new OperationLog();
+        $log->setUserId($userId);
+        $log->setOperationId($operationId);
+        $log->setOperationType($operationType);
+
+        return $log;
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'operationType' => ['operationType', 'new_operation_type'];
+        yield 'businessContext' => ['businessContext', ['key' => 'value']];
+        yield 'verificationRequired' => ['verificationRequired', true];
+        yield 'verificationCompleted' => ['verificationCompleted', true];
+        yield 'verificationCount' => ['verificationCount', 5];
+        yield 'minVerificationCount' => ['minVerificationCount', 3];
+        yield 'status' => ['status', OperationStatus::COMPLETED];
+    }
+
+    public function testConstructionWithValidData(): void
     {
         // Arrange
         $userId = 'user123';
@@ -19,7 +57,10 @@ class OperationLogTest extends TestCase
         $operationType = 'login';
 
         // Act
-        $operationLog = new OperationLog($userId, $operationId, $operationType);
+        $operationLog = new OperationLog();
+        $operationLog->setUserId($userId);
+        $operationLog->setOperationId($operationId);
+        $operationLog->setOperationType($operationType);
 
         // Assert
         $this->assertSame($userId, $operationLog->getUserId());
@@ -35,7 +76,7 @@ class OperationLogTest extends TestCase
         $this->assertNull($operationLog->getCompletedTime());
     }
 
-    public function test_construction_with_empty_strings(): void
+    public function testConstructionWithEmptyStrings(): void
     {
         // Arrange
         $userId = '';
@@ -43,7 +84,10 @@ class OperationLogTest extends TestCase
         $operationType = '';
 
         // Act
-        $operationLog = new OperationLog($userId, $operationId, $operationType);
+        $operationLog = new OperationLog();
+        $operationLog->setUserId($userId);
+        $operationLog->setOperationId($operationId);
+        $operationLog->setOperationType($operationType);
 
         // Assert
         $this->assertSame('', $operationLog->getUserId());
@@ -51,10 +95,10 @@ class OperationLogTest extends TestCase
         $this->assertSame('', $operationLog->getOperationType());
     }
 
-    public function test_set_operation_type(): void
+    public function testSetOperationType(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act
         $newType = 'logout';
@@ -64,14 +108,14 @@ class OperationLogTest extends TestCase
         $this->assertSame($newType, $operationLog->getOperationType());
     }
 
-    public function test_set_business_context_with_array(): void
+    public function testSetBusinessContextWithArray(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $context = [
             'ip' => '192.168.1.1',
             'browser' => 'Chrome',
-            'amount' => 1000.50
+            'amount' => 1000.50,
         ];
 
         // Act
@@ -81,10 +125,10 @@ class OperationLogTest extends TestCase
         $this->assertSame($context, $operationLog->getBusinessContext());
     }
 
-    public function test_set_business_context_with_null(): void
+    public function testSetBusinessContextWithNull(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act
         $operationLog->setBusinessContext(null);
@@ -93,10 +137,10 @@ class OperationLogTest extends TestCase
         $this->assertNull($operationLog->getBusinessContext());
     }
 
-    public function test_set_business_context_with_empty_array(): void
+    public function testSetBusinessContextWithEmptyArray(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act
         $operationLog->setBusinessContext([]);
@@ -105,10 +149,10 @@ class OperationLogTest extends TestCase
         $this->assertSame([], $operationLog->getBusinessContext());
     }
 
-    public function test_set_verification_required(): void
+    public function testSetVerificationRequired(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $operationLog->setVerificationRequired(true);
@@ -118,10 +162,10 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isVerificationRequired());
     }
 
-    public function test_set_verification_completed(): void
+    public function testSetVerificationCompleted(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $operationLog->setVerificationCompleted(true);
@@ -131,10 +175,10 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isVerificationCompleted());
     }
 
-    public function test_set_verification_count(): void
+    public function testSetVerificationCount(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert - 测试各种计数值
         $operationLog->setVerificationCount(0);
@@ -147,10 +191,10 @@ class OperationLogTest extends TestCase
         $this->assertSame(100, $operationLog->getVerificationCount());
     }
 
-    public function test_set_min_verification_count(): void
+    public function testSetMinVerificationCount(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $operationLog->setMinVerificationCount(3);
@@ -160,10 +204,10 @@ class OperationLogTest extends TestCase
         $this->assertSame(0, $operationLog->getMinVerificationCount());
     }
 
-    public function test_set_status_with_all_enum_values(): void
+    public function testSetStatusWithAllEnumValues(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         foreach (OperationStatus::cases() as $status) {
@@ -172,15 +216,15 @@ class OperationLogTest extends TestCase
         }
     }
 
-    public function test_set_status_updates_completed_time_for_final_states(): void
+    public function testSetStatusUpdatesCompletedTimeForFinalStates(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $this->assertNull($operationLog->getCompletedTime());
 
         // Act & Assert - 终态应该设置完成时间
         $finalStates = [OperationStatus::COMPLETED, OperationStatus::FAILED, OperationStatus::CANCELLED];
-        
+
         foreach ($finalStates as $status) {
             $operationLog->setStatus($status);
             $this->assertInstanceOf(\DateTimeInterface::class, $operationLog->getCompletedTime());
@@ -188,24 +232,24 @@ class OperationLogTest extends TestCase
         }
     }
 
-    public function test_set_status_does_not_update_completed_time_for_non_final_states(): void
+    public function testSetStatusDoesNotUpdateCompletedTimeForNonFinalStates(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
-        
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
+
         // Act & Assert - 非终态不应该设置完成时间
         $nonFinalStates = [OperationStatus::PENDING, OperationStatus::PROCESSING];
-        
+
         foreach ($nonFinalStates as $status) {
             $operationLog->setStatus($status);
             $this->assertNull($operationLog->getCompletedTime());
         }
     }
 
-    public function test_increment_verification_count(): void
+    public function testIncrementVerificationCount(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $this->assertSame(0, $operationLog->getVerificationCount());
 
         // Act & Assert
@@ -219,20 +263,20 @@ class OperationLogTest extends TestCase
         $this->assertSame(3, $operationLog->getVerificationCount());
     }
 
-    public function test_is_verification_satisfied_when_not_required(): void
+    public function testIsVerificationSatisfiedWhenNotRequired(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setVerificationRequired(false);
 
         // Act & Assert
         $this->assertTrue($operationLog->isVerificationSatisfied());
     }
 
-    public function test_is_verification_satisfied_when_required_but_not_completed(): void
+    public function testIsVerificationSatisfiedWhenRequiredButNotCompleted(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setVerificationRequired(true);
         $operationLog->setVerificationCompleted(false);
 
@@ -240,10 +284,10 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isVerificationSatisfied());
     }
 
-    public function test_is_verification_satisfied_when_completed_but_count_insufficient(): void
+    public function testIsVerificationSatisfiedWhenCompletedButCountInsufficient(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setVerificationRequired(true);
         $operationLog->setVerificationCompleted(true);
         $operationLog->setMinVerificationCount(3);
@@ -253,10 +297,10 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isVerificationSatisfied());
     }
 
-    public function test_is_verification_satisfied_when_fully_satisfied(): void
+    public function testIsVerificationSatisfiedWhenFullySatisfied(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setVerificationRequired(true);
         $operationLog->setVerificationCompleted(true);
         $operationLog->setMinVerificationCount(2);
@@ -266,10 +310,10 @@ class OperationLogTest extends TestCase
         $this->assertTrue($operationLog->isVerificationSatisfied());
     }
 
-    public function test_is_verification_satisfied_when_count_equals_minimum(): void
+    public function testIsVerificationSatisfiedWhenCountEqualsMinimum(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setVerificationRequired(true);
         $operationLog->setVerificationCompleted(true);
         $operationLog->setMinVerificationCount(2);
@@ -279,10 +323,10 @@ class OperationLogTest extends TestCase
         $this->assertTrue($operationLog->isVerificationSatisfied());
     }
 
-    public function test_get_business_context_value_with_existing_key(): void
+    public function testGetBusinessContextValueWithExistingKey(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $context = ['ip' => '192.168.1.1', 'amount' => 1500];
         $operationLog->setBusinessContext($context);
 
@@ -291,20 +335,20 @@ class OperationLogTest extends TestCase
         $this->assertSame(1500, $operationLog->getBusinessContextValue('amount'));
     }
 
-    public function test_get_business_context_value_with_non_existing_key(): void
+    public function testGetBusinessContextValueWithNonExistingKey(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setBusinessContext(['ip' => '192.168.1.1']);
 
         // Act & Assert
         $this->assertNull($operationLog->getBusinessContextValue('non_existing'));
     }
 
-    public function test_get_business_context_value_with_default(): void
+    public function testGetBusinessContextValueWithDefault(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setBusinessContext(['ip' => '192.168.1.1']);
 
         // Act & Assert
@@ -312,10 +356,10 @@ class OperationLogTest extends TestCase
         $this->assertSame(0, $operationLog->getBusinessContextValue('count', 0));
     }
 
-    public function test_get_business_context_value_with_null_context(): void
+    public function testGetBusinessContextValueWithNullContext(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setBusinessContext(null);
 
         // Act & Assert
@@ -323,10 +367,10 @@ class OperationLogTest extends TestCase
         $this->assertSame('default', $operationLog->getBusinessContextValue('any_key', 'default'));
     }
 
-    public function test_set_business_context_value_with_null_context(): void
+    public function testSetBusinessContextValueWithNullContext(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setBusinessContext(null);
 
         // Act
@@ -336,10 +380,10 @@ class OperationLogTest extends TestCase
         $this->assertSame(['new_key' => 'new_value'], $operationLog->getBusinessContext());
     }
 
-    public function test_set_business_context_value_with_existing_context(): void
+    public function testSetBusinessContextValueWithExistingContext(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setBusinessContext(['existing' => 'value']);
 
         // Act
@@ -350,10 +394,10 @@ class OperationLogTest extends TestCase
         $this->assertSame($expected, $operationLog->getBusinessContext());
     }
 
-    public function test_set_business_context_value_overwrites_existing(): void
+    public function testSetBusinessContextValueOverwritesExisting(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setBusinessContext(['key' => 'old_value']);
 
         // Act
@@ -363,10 +407,10 @@ class OperationLogTest extends TestCase
         $this->assertSame('new_value', $operationLog->getBusinessContextValue('key'));
     }
 
-    public function test_is_completed(): void
+    public function testIsCompleted(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $operationLog->setStatus(OperationStatus::COMPLETED);
@@ -376,10 +420,10 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isCompleted());
     }
 
-    public function test_is_failed(): void
+    public function testIsFailed(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $operationLog->setStatus(OperationStatus::FAILED);
@@ -389,10 +433,10 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isFailed());
     }
 
-    public function test_is_cancelled(): void
+    public function testIsCancelled(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $operationLog->setStatus(OperationStatus::CANCELLED);
@@ -402,20 +446,20 @@ class OperationLogTest extends TestCase
         $this->assertFalse($operationLog->isCancelled());
     }
 
-    public function test_get_duration_with_null_completed_time(): void
+    public function testGetDurationWithNullCompletedTime(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
 
         // Act & Assert
         $this->assertNull($operationLog->getDuration());
     }
 
-    public function test_get_duration_with_completed_time(): void
+    public function testGetDurationWithCompletedTime(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
-        
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
+
         // 设置一个较早的开始时间
         $reflection = new \ReflectionClass($operationLog);
         $startedTimeProperty = $reflection->getProperty('startedTime');
@@ -433,12 +477,12 @@ class OperationLogTest extends TestCase
         $this->assertLessThan(20, $duration); // 应该在合理范围内
     }
 
-    public function test_to_string_method(): void
+    public function testToStringMethod(): void
     {
         // Arrange
         $operationId = 'test_op_123';
         $operationType = 'payment';
-        $operationLog = new OperationLog('user123', $operationId, $operationType);
+        $operationLog = $this->createOperationLog('user123', $operationId, $operationType);
 
         // Act
         $result = (string) $operationLog;
@@ -450,10 +494,10 @@ class OperationLogTest extends TestCase
         $this->assertStringContainsString('pending', $result);
     }
 
-    public function test_to_string_with_different_status(): void
+    public function testToStringWithDifferentStatus(): void
     {
         // Arrange
-        $operationLog = new OperationLog('user123', 'op456', 'login');
+        $operationLog = $this->createOperationLog('user123', 'op456', 'login');
         $operationLog->setStatus(OperationStatus::COMPLETED);
 
         // Act
@@ -463,16 +507,16 @@ class OperationLogTest extends TestCase
         $this->assertStringContainsString('completed', $result);
     }
 
-    public function test_complex_verification_scenario(): void
+    public function testComplexVerificationScenario(): void
     {
         // Arrange - 复杂验证场景
-        $operationLog = new OperationLog('user123', 'payment_001', 'payment');
+        $operationLog = $this->createOperationLog('user123', 'payment_001', 'payment');
         $operationLog->setVerificationRequired(true);
         $operationLog->setMinVerificationCount(3);
         $operationLog->setBusinessContext([
             'amount' => 5000.00,
             'currency' => 'USD',
-            'ip' => '192.168.1.100'
+            'ip' => '192.168.1.100',
         ]);
 
         // Act & Assert - 逐步完成验证
@@ -490,4 +534,4 @@ class OperationLogTest extends TestCase
         $operationLog->setVerificationCompleted(true);
         $this->assertTrue($operationLog->isVerificationSatisfied()); // 现在满足了
     }
-} 
+}

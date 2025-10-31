@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Tourze\FaceDetectBundle\Tests\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Entity\StrategyRule;
 use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
 /**
  * VerificationStrategy 实体单元测试
@@ -19,9 +20,34 @@ use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
  * - 业务逻辑方法
  * - 时间戳更新机制
  * - 边界条件和异常场景
+ *
+ * @internal
  */
-class VerificationStrategyTest extends TestCase
+#[CoversClass(VerificationStrategy::class)]
+final class VerificationStrategyTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        $strategy = new VerificationStrategy();
+        $strategy->setName('test_strategy');
+        $strategy->setBusinessType('test_business_type');
+        $strategy->setConfig(['key1' => 'value1']);
+
+        return $strategy;
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'name' => ['name', 'new_strategy_name'];
+        yield 'businessType' => ['businessType', 'new_business_type'];
+        yield 'config' => ['config', ['new_key' => 'new_value']];
+        yield 'enabled' => ['enabled', false];
+        yield 'description' => ['description', 'new_description'];
+    }
+
     /**
      * 测试构造函数创建基本策略
      */
@@ -32,7 +58,9 @@ class VerificationStrategyTest extends TestCase
         $businessType = 'login';
 
         // Act
-        $strategy = new VerificationStrategy($name, $businessType);
+        $strategy = new VerificationStrategy();
+        $strategy->setName($name);
+        $strategy->setBusinessType($businessType);
 
         // Assert
         $this->assertSame($name, $strategy->getName());
@@ -60,11 +88,14 @@ class VerificationStrategyTest extends TestCase
         $config = [
             'min_confidence' => 0.85,
             'timeout' => 30,
-            'retry_attempts' => 3
+            'retry_attempts' => 3,
         ];
 
         // Act
-        $strategy = new VerificationStrategy($name, $businessType, $config);
+        $strategy = new VerificationStrategy();
+        $strategy->setName($name);
+        $strategy->setBusinessType($businessType);
+        $strategy->setConfig($config);
 
         // Assert
         $this->assertSame($name, $strategy->getName());
@@ -78,7 +109,9 @@ class VerificationStrategyTest extends TestCase
     public function testConstructorWithEmptyStrings(): void
     {
         // Arrange & Act
-        $strategy = new VerificationStrategy('', '');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('');
+        $strategy->setBusinessType('');
 
         // Assert
         $this->assertSame('', $strategy->getName());
@@ -91,7 +124,9 @@ class VerificationStrategyTest extends TestCase
     public function testToStringWithoutId(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('High Security Strategy', 'transfer');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('High Security Strategy');
+        $strategy->setBusinessType('transfer');
 
         // Act
         $result = (string) $strategy;
@@ -106,8 +141,10 @@ class VerificationStrategyTest extends TestCase
     public function testToStringWithId(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'test');
-        
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('test');
+
         // 使用反射设置ID
         $reflection = new \ReflectionClass($strategy);
         $idProperty = $reflection->getProperty('id');
@@ -126,13 +163,14 @@ class VerificationStrategyTest extends TestCase
     public function testSetName(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Original Name', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Original Name');
+        $strategy->setBusinessType('login');
 
         // Act
-        $result = $strategy->setName('Updated Name');
+        $strategy->setName('Updated Name');
 
         // Assert
-        $this->assertSame($strategy, $result); // 链式调用
         $this->assertSame('Updated Name', $strategy->getName());
     }
 
@@ -142,13 +180,14 @@ class VerificationStrategyTest extends TestCase
     public function testSetBusinessType(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act
-        $result = $strategy->setBusinessType('payment');
+        $strategy->setBusinessType('payment');
 
         // Assert
-        $this->assertSame($strategy, $result);
         $this->assertSame('payment', $strategy->getBusinessType());
     }
 
@@ -158,11 +197,12 @@ class VerificationStrategyTest extends TestCase
     public function testSetDescription(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act & Assert - 设置描述
-        $result = $strategy->setDescription('This is a test strategy');
-        $this->assertSame($strategy, $result);
+        $strategy->setDescription('This is a test strategy');
         $this->assertSame('This is a test strategy', $strategy->getDescription());
 
         // Act & Assert - 设置为null
@@ -176,13 +216,14 @@ class VerificationStrategyTest extends TestCase
     public function testSetEnabled(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act
-        $result = $strategy->setEnabled(false);
+        $strategy->setEnabled(false);
 
         // Assert
-        $this->assertSame($strategy, $result);
         $this->assertFalse($strategy->isEnabled());
     }
 
@@ -192,13 +233,14 @@ class VerificationStrategyTest extends TestCase
     public function testSetPriority(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act
-        $result = $strategy->setPriority(100);
+        $strategy->setPriority(100);
 
         // Assert
-        $this->assertSame($strategy, $result);
         $this->assertSame(100, $strategy->getPriority());
     }
 
@@ -208,7 +250,9 @@ class VerificationStrategyTest extends TestCase
     public function testSetPriorityWithExtremeValues(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act & Assert - 负数
         $strategy->setPriority(-50);
@@ -229,14 +273,15 @@ class VerificationStrategyTest extends TestCase
     public function testSetConfig(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
         $newConfig = ['timeout' => 60, 'retries' => 5];
 
         // Act
-        $result = $strategy->setConfig($newConfig);
+        $strategy->setConfig($newConfig);
 
         // Assert
-        $this->assertSame($strategy, $result);
         $this->assertSame($newConfig, $strategy->getConfig());
     }
 
@@ -246,7 +291,10 @@ class VerificationStrategyTest extends TestCase
     public function testSetConfigWithEmptyArray(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login', ['existing' => 'value']);
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        $strategy->setConfig(['existing' => 'value']);
 
         // Act
         $strategy->setConfig([]);
@@ -266,10 +314,13 @@ class VerificationStrategyTest extends TestCase
             'min_confidence' => 0.8,
             'enabled_features' => ['liveness', 'quality'],
             'complex_config' => [
-                'nested' => ['value' => 'test']
-            ]
+                'nested' => ['value' => 'test'],
+            ],
         ];
-        $strategy = new VerificationStrategy('Test Strategy', 'login', $config);
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        $strategy->setConfig($config);
 
         // Act & Assert
         $this->assertSame(30, $strategy->getConfigValue('timeout'));
@@ -284,7 +335,9 @@ class VerificationStrategyTest extends TestCase
     public function testGetConfigValueNonExistingKeyWithDefault(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act & Assert
         $this->assertNull($strategy->getConfigValue('non_existing'));
@@ -299,13 +352,14 @@ class VerificationStrategyTest extends TestCase
     public function testSetConfigValue(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act
-        $result = $strategy->setConfigValue('new_key', 'new_value');
+        $strategy->setConfigValue('new_key', 'new_value');
 
         // Assert
-        $this->assertSame($strategy, $result); // 链式调用
         $this->assertSame('new_value', $strategy->getConfigValue('new_key'));
     }
 
@@ -315,12 +369,14 @@ class VerificationStrategyTest extends TestCase
     public function testSetMultipleConfigValues(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act
-        $strategy->setConfigValue('timeout', 60)
-                 ->setConfigValue('retries', 3)
-                 ->setConfigValue('features', ['face', 'voice']);
+        $strategy->setConfigValue('timeout', 60);
+        $strategy->setConfigValue('retries', 3);
+        $strategy->setConfigValue('features', ['face', 'voice']);
 
         // Assert
         $this->assertSame(60, $strategy->getConfigValue('timeout'));
@@ -334,7 +390,10 @@ class VerificationStrategyTest extends TestCase
     public function testSetConfigValueOverwriteExisting(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login', ['key' => 'old_value']);
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        $strategy->setConfig(['key' => 'old_value']);
 
         // Act
         $strategy->setConfigValue('key', 'new_value');
@@ -349,16 +408,23 @@ class VerificationStrategyTest extends TestCase
     public function testAddRule(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $rule */
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $rule = $this->createMock(StrategyRule::class);
         $rule->expects($this->once())->method('setStrategy')->with($strategy);
 
         // Act
-        $result = $strategy->addRule($rule);
+        $strategy->addRule($rule);
 
         // Assert
-        $this->assertSame($strategy, $result); // 链式调用
         $this->assertTrue($strategy->getRules()->contains($rule));
         $this->assertCount(1, $strategy->getRules());
     }
@@ -369,8 +435,16 @@ class VerificationStrategyTest extends TestCase
     public function testAddDuplicateRule(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $rule */
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $rule = $this->createMock(StrategyRule::class);
         $rule->expects($this->once())->method('setStrategy')->with($strategy);
 
@@ -388,19 +462,26 @@ class VerificationStrategyTest extends TestCase
     public function testRemoveRule(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $rule */
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $rule = $this->createMock(StrategyRule::class);
         $rule->method('getStrategy')->willReturn($strategy);
         $rule->expects($this->once())->method('setStrategy')->with(null);
-        
+
         $strategy->getRules()->add($rule); // 直接添加到集合中
 
         // Act
-        $result = $strategy->removeRule($rule);
+        $strategy->removeRule($rule);
 
         // Assert
-        $this->assertSame($strategy, $result); // 链式调用
         $this->assertFalse($strategy->getRules()->contains($rule));
         $this->assertCount(0, $strategy->getRules());
     }
@@ -411,16 +492,23 @@ class VerificationStrategyTest extends TestCase
     public function testRemoveNonExistentRule(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $rule */
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $rule = $this->createMock(StrategyRule::class);
         $rule->expects($this->never())->method('setStrategy');
 
         // Act
-        $result = $strategy->removeRule($rule);
+        $strategy->removeRule($rule);
 
         // Assert
-        $this->assertSame($strategy, $result);
         $this->assertCount(0, $strategy->getRules());
     }
 
@@ -430,7 +518,9 @@ class VerificationStrategyTest extends TestCase
     public function testIsUsable(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act & Assert - 默认启用
         $this->assertTrue($strategy->isUsable());
@@ -450,17 +540,37 @@ class VerificationStrategyTest extends TestCase
     public function testGetEnabledRules(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
-        
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $enabledRule1 */
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $enabledRule1 = $this->createMock(StrategyRule::class);
         $enabledRule1->method('isEnabled')->willReturn(true);
-        
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $enabledRule2 */
+
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $enabledRule2 = $this->createMock(StrategyRule::class);
         $enabledRule2->method('isEnabled')->willReturn(true);
-        
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $disabledRule */
+
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $disabledRule = $this->createMock(StrategyRule::class);
         $disabledRule->method('isEnabled')->willReturn(false);
 
@@ -485,12 +595,20 @@ class VerificationStrategyTest extends TestCase
     public function testGetEnabledRulesWhenAllDisabled(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
-        
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $disabledRule */
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
+
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $disabledRule = $this->createMock(StrategyRule::class);
         $disabledRule->method('isEnabled')->willReturn(false);
-        
+
         $strategy->getRules()->add($disabledRule);
 
         // Act
@@ -510,25 +628,28 @@ class VerificationStrategyTest extends TestCase
             'face_detection' => [
                 'min_confidence' => 0.85,
                 'quality_threshold' => 0.7,
-                'liveness_check' => true
+                'liveness_check' => true,
             ],
             'security' => [
                 'max_attempts' => 3,
                 'lockout_duration' => 300,
-                'ip_whitelist' => ['192.168.1.0/24']
+                'ip_whitelist' => ['192.168.1.0/24'],
             ],
             'performance' => [
                 'timeout' => 30,
-                'cache_ttl' => 3600
-            ]
+                'cache_ttl' => 3600,
+            ],
         ];
 
         // Act
-        $strategy = new VerificationStrategy('High Security Payment Strategy', 'high_value_payment', $complexConfig);
-        $strategy->setDescription('Strategy for high-value payments with enhanced security')
-                 ->setPriority(100)
-                 ->setConfigValue('notifications', ['email', 'sms'])
-                 ->setConfigValue('audit_level', 'full');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('High Security Payment Strategy');
+        $strategy->setBusinessType('high_value_payment');
+        $strategy->setConfig($complexConfig);
+        $strategy->setDescription('Strategy for high-value payments with enhanced security');
+        $strategy->setPriority(100);
+        $strategy->setConfigValue('notifications', ['email', 'sms']);
+        $strategy->setConfigValue('audit_level', 'full');
 
         // Assert
         $this->assertSame('High Security Payment Strategy', $strategy->getName());
@@ -537,10 +658,14 @@ class VerificationStrategyTest extends TestCase
         $this->assertSame(100, $strategy->getPriority());
         $this->assertTrue($strategy->isEnabled());
         $this->assertTrue($strategy->isUsable());
-        
+
         // 测试嵌套配置访问
-        $this->assertSame(0.85, $strategy->getConfigValue('face_detection')['min_confidence']);
-        $this->assertSame(3, $strategy->getConfigValue('security')['max_attempts']);
+        $faceDetection = $strategy->getConfigValue('face_detection');
+        $this->assertIsArray($faceDetection);
+        $this->assertSame(0.85, $faceDetection['min_confidence']);
+        $security = $strategy->getConfigValue('security');
+        $this->assertIsArray($security);
+        $this->assertSame(3, $security['max_attempts']);
         $this->assertSame(['email', 'sms'], $strategy->getConfigValue('notifications'));
         $this->assertSame('full', $strategy->getConfigValue('audit_level'));
     }
@@ -561,19 +686,24 @@ class VerificationStrategyTest extends TestCase
             'false_value' => false,
             'nested_special' => [
                 'key with spaces' => 'value',
-                'symbols@#$' => 'test'
-            ]
+                'symbols@#$' => 'test',
+            ],
         ];
 
         // Act
-        $strategy = new VerificationStrategy($specialName, $specialBusinessType, $specialConfig);
-        $strategy->setDescription('Description with 特殊字符 and "quotes"')
-                 ->setConfigValue('special_key@domain.com', 'email_like_key');
+        $strategy = new VerificationStrategy();
+        $strategy->setName($specialName);
+        $strategy->setBusinessType($specialBusinessType);
+        $strategy->setConfig($specialConfig);
+        $strategy->setDescription('Description with 特殊字符 and "quotes"');
+        $strategy->setConfigValue('special_key@domain.com', 'email_like_key');
 
         // Assert
         $this->assertSame($specialName, $strategy->getName());
         $this->assertSame($specialBusinessType, $strategy->getBusinessType());
-        $this->assertStringContainsString('特殊字符', $strategy->getDescription());
+        $description = $strategy->getDescription();
+        $this->assertNotNull($description);
+        $this->assertStringContainsString('特殊字符', $description);
         $this->assertSame('这是中文 🎉 émojis', $strategy->getConfigValue('unicode_text'));
         $this->assertSame('', $strategy->getConfigValue('empty_string'));
         $this->assertNull($strategy->getConfigValue('null_value'));
@@ -588,7 +718,9 @@ class VerificationStrategyTest extends TestCase
     public function testTimestampInitialValues(): void
     {
         // Arrange
-        $strategy = new VerificationStrategy('Test Strategy', 'login');
+        $strategy = new VerificationStrategy();
+        $strategy->setName('Test Strategy');
+        $strategy->setBusinessType('login');
 
         // Act & Assert - 新创建的实体时间戳应该为null，直到被持久化
         $this->assertNull($strategy->getCreateTime());
@@ -601,20 +733,30 @@ class VerificationStrategyTest extends TestCase
     public function testCollectionIndependence(): void
     {
         // Arrange
-        $strategy1 = new VerificationStrategy('Strategy 1', 'login');
-        $strategy2 = new VerificationStrategy('Strategy 2', 'payment');
+        $strategy1 = new VerificationStrategy();
+        $strategy1->setName('Strategy 1');
+        $strategy1->setBusinessType('login');
+        $strategy2 = new VerificationStrategy();
+        $strategy2->setName('Strategy 2');
+        $strategy2->setBusinessType('payment');
 
         // Act & Assert
         $this->assertNotSame($strategy1->getRules(), $strategy2->getRules());
         $this->assertNotSame($strategy1->getVerificationRecords(), $strategy2->getVerificationRecords());
-        
+
         // 修改一个策略的规则不应影响另一个
-        /** @var StrategyRule&\PHPUnit\Framework\MockObject\MockObject $rule */
+        /*
+         * 使用具体类 StrategyRule 进行 mock 的原因：
+         * 1. StrategyRule 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationStrategy 时需要模拟规则对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $rule = $this->createMock(StrategyRule::class);
         $rule->method('setStrategy');
-        
+
         $strategy1->addRule($rule);
         $this->assertCount(1, $strategy1->getRules());
         $this->assertCount(0, $strategy2->getRules());
     }
-} 
+}

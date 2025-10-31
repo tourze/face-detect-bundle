@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Contract;
 
 use Tourze\FaceDetectBundle\Entity\FaceProfile;
@@ -18,39 +20,44 @@ interface FaceCollectionServiceInterface
     /**
      * 采集用户人脸信息
      *
-     * @param string $userId 用户ID
-     * @param string $imageData 人脸图片数据（base64编码）
-     * @param array $deviceInfo 设备信息
-     * @param string $collectionMethod 采集方式
+     * @param string               $userId           用户ID
+     * @param string               $imageData        人脸图片数据（base64编码）
+     * @param array<string, mixed> $deviceInfo       设备信息
+     * @param string               $collectionMethod 采集方式
+     *
      * @return FaceProfile 人脸档案
+     *
      * @throws FaceDetectException 采集失败时抛出异常
      */
     public function collectFace(
         string $userId,
         string $imageData,
         array $deviceInfo = [],
-        string $collectionMethod = 'manual'
+        string $collectionMethod = 'manual',
     ): FaceProfile;
 
     /**
      * 重新采集用户人脸信息
      *
-     * @param string $userId 用户ID
-     * @param string $imageData 人脸图片数据（base64编码）
-     * @param array $deviceInfo 设备信息
+     * @param string               $userId     用户ID
+     * @param string               $imageData  人脸图片数据（base64编码）
+     * @param array<string, mixed> $deviceInfo 设备信息
+     *
      * @return FaceProfile 更新后的人脸档案
+     *
      * @throws FaceDetectException 采集失败时抛出异常
      */
     public function recollectFace(
         string $userId,
         string $imageData,
-        array $deviceInfo = []
+        array $deviceInfo = [],
     ): FaceProfile;
 
     /**
      * 获取用户人脸档案
      *
      * @param string $userId 用户ID
+     *
      * @return FaceProfile|null 人脸档案，不存在时返回null
      */
     public function getFaceProfile(string $userId): ?FaceProfile;
@@ -59,6 +66,7 @@ interface FaceCollectionServiceInterface
      * 检查人脸档案是否可用
      *
      * @param string $userId 用户ID
+     *
      * @return bool 是否可用
      */
     public function isFaceProfileAvailable(string $userId): bool;
@@ -67,6 +75,7 @@ interface FaceCollectionServiceInterface
      * 删除用户人脸信息
      *
      * @param string $userId 用户ID
+     *
      * @return bool 删除是否成功
      */
     public function deleteFaceProfile(string $userId): bool;
@@ -82,7 +91,9 @@ interface FaceCollectionServiceInterface
      * 验证人脸图片质量
      *
      * @param string $imageData 人脸图片数据（base64编码）
-     * @return array 质量检测结果
+     *
+     * @return array<string, mixed> 质量检测结果
+     *
      * @throws FaceDetectException 检测失败时抛出异常
      */
     public function validateFaceQuality(string $imageData): array;

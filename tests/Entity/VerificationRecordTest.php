@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Tourze\FaceDetectBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Entity\VerificationRecord;
 use Tourze\FaceDetectBundle\Entity\VerificationStrategy;
 use Tourze\FaceDetectBundle\Enum\VerificationResult;
 use Tourze\FaceDetectBundle\Enum\VerificationType;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
 /**
  * VerificationRecord 实体单元测试
@@ -20,16 +21,70 @@ use Tourze\FaceDetectBundle\Enum\VerificationType;
  * - 错误信息设置
  * - 业务逻辑方法
  * - 边界条件和异常场景
+ *
+ * @internal
  */
-class VerificationRecordTest extends TestCase
+#[CoversClass(VerificationRecord::class)]
+final class VerificationRecordTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        $strategy = new VerificationStrategy();
+        $strategy->setName('test_strategy');
+        $strategy->setBusinessType('test_business_type');
+        $strategy->setConfig([]);
+
+        $record = new VerificationRecord();
+        $record->setUserId('test_user');
+        $record->setStrategy($strategy);
+        $record->setBusinessType('test_business_type');
+        $record->setResult(VerificationResult::SUCCESS);
+
+        return $record;
+    }
+
+    /**
+     * 创建VerificationRecord实体的辅助方法
+     */
+    private function createVerificationRecord(string $userId, VerificationStrategy $strategy, string $businessType, VerificationResult $result): VerificationRecord
+    {
+        $record = new VerificationRecord();
+        $record->setUserId($userId);
+        $record->setStrategy($strategy);
+        $record->setBusinessType($businessType);
+        $record->setResult($result);
+
+        return $record;
+    }
+
+    /**
+     * @return iterable<array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'businessType' => ['businessType', 'new_business_type'];
+        yield 'verificationType' => ['verificationType', VerificationType::OPTIONAL];
+        yield 'result' => ['result', VerificationResult::FAILED];
+        yield 'clientInfo' => ['clientInfo', ['ip' => '192.168.1.1']];
+        yield 'errorCode' => ['errorCode', 'TEST_ERROR_CODE'];
+        yield 'errorMessage' => ['errorMessage', 'test_error_message'];
+        yield 'confidenceScore' => ['confidenceScore', 0.95];
+    }
+
     private VerificationStrategy $mockStrategy;
 
     protected function setUp(): void
     {
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $strategy */
-        $strategy = $this->createMock(VerificationStrategy::class);
-        $this->mockStrategy = $strategy;
+        parent::setUp();
+
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationRecord 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
+        $this->mockStrategy = $this->createMock(VerificationStrategy::class);
     }
 
     /**
@@ -43,7 +98,7 @@ class VerificationRecordTest extends TestCase
         $result = VerificationResult::SUCCESS;
 
         // Act
-        $record = new VerificationRecord($userId, $this->mockStrategy, $businessType, $result);
+        $record = $this->createVerificationRecord($userId, $this->mockStrategy, $businessType, $result);
 
         // Assert
         $this->assertSame($userId, $record->getUserId());
@@ -66,7 +121,7 @@ class VerificationRecordTest extends TestCase
     public function testConstructorWithEmptyStrings(): void
     {
         // Arrange & Act
-        $record = new VerificationRecord('', $this->mockStrategy, '', VerificationResult::FAILED);
+        $record = $this->createVerificationRecord('', $this->mockStrategy, '', VerificationResult::FAILED);
 
         // Assert
         $this->assertSame('', $record->getUserId());
@@ -80,7 +135,7 @@ class VerificationRecordTest extends TestCase
     {
         // Arrange
         $userId = 'test_user_123';
-        $record = new VerificationRecord($userId, $this->mockStrategy, 'payment', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord($userId, $this->mockStrategy, 'payment', VerificationResult::SUCCESS);
 
         // Act
         $result = (string) $record;
@@ -98,8 +153,8 @@ class VerificationRecordTest extends TestCase
     public function testToStringWithId(): void
     {
         // Arrange
-        $record = new VerificationRecord('user456', $this->mockStrategy, 'transfer', VerificationResult::FAILED);
-        
+        $record = $this->createVerificationRecord('user456', $this->mockStrategy, 'transfer', VerificationResult::FAILED);
+
         // 使用反射设置ID
         $reflection = new \ReflectionClass($record);
         $idProperty = $reflection->getProperty('id');
@@ -118,15 +173,20 @@ class VerificationRecordTest extends TestCase
     public function testSetStrategy(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
-        /** @var VerificationStrategy&\PHPUnit\Framework\MockObject\MockObject $newStrategy */
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        /*
+         * 使用具体类 VerificationStrategy 进行 mock 的原因：
+         * 1. VerificationStrategy 是一个 Doctrine 实体类，没有对应的接口
+         * 2. 在测试 VerificationRecord 时需要模拟策略对象的行为
+         * 3. 这是测试实体关联关系的标准做法，因为 Doctrine 实体通常不实现接口
+         * 4. Mock 对象可以避免创建真实的数据库记录，保持测试的独立性
+         */
         $newStrategy = $this->createMock(VerificationStrategy::class);
 
         // Act
-        $result = $record->setStrategy($newStrategy);
+        $record->setStrategy($newStrategy);
 
         // Assert
-        $this->assertSame($record, $result); // 测试链式调用
         $this->assertSame($newStrategy, $record->getStrategy());
     }
 
@@ -136,13 +196,12 @@ class VerificationRecordTest extends TestCase
     public function testSetBusinessType(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act
-        $result = $record->setBusinessType('payment');
+        $record->setBusinessType('payment');
 
         // Assert
-        $this->assertSame($record, $result);
         $this->assertSame('payment', $record->getBusinessType());
     }
 
@@ -152,7 +211,7 @@ class VerificationRecordTest extends TestCase
     public function testSetOperationId(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'transfer', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'transfer', VerificationResult::SUCCESS);
 
         // Act & Assert
         $record->setOperationId('op_123456');
@@ -168,12 +227,11 @@ class VerificationRecordTest extends TestCase
     public function testSetVerificationType(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act & Assert
         foreach (VerificationType::cases() as $type) {
-            $result = $record->setVerificationType($type);
-            $this->assertSame($record, $result); // 链式调用
+            $record->setVerificationType($type);
             $this->assertSame($type, $record->getVerificationType());
         }
     }
@@ -184,12 +242,11 @@ class VerificationRecordTest extends TestCase
     public function testSetResult(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act & Assert
         foreach (VerificationResult::cases() as $result) {
-            $returnValue = $record->setResult($result);
-            $this->assertSame($record, $returnValue); // 链式调用
+            $record->setResult($result);
             $this->assertSame($result, $record->getResult());
         }
     }
@@ -200,7 +257,7 @@ class VerificationRecordTest extends TestCase
     public function testSetConfidenceScore(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act & Assert - 有效范围
         $record->setConfidenceScore(0.0);
@@ -222,7 +279,7 @@ class VerificationRecordTest extends TestCase
     public function testSetVerificationTime(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act & Assert
         $record->setVerificationTime(1.5);
@@ -241,19 +298,18 @@ class VerificationRecordTest extends TestCase
     public function testSetClientInfo(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $clientInfo = [
             'browser' => 'Chrome',
             'os' => 'Windows 10',
             'ip' => '192.168.1.1',
-            'user_agent' => 'Mozilla/5.0...'
+            'user_agent' => 'Mozilla/5.0...',
         ];
 
         // Act
-        $result = $record->setClientInfo($clientInfo);
+        $record->setClientInfo($clientInfo);
 
         // Assert
-        $this->assertSame($record, $result);
         $this->assertSame($clientInfo, $record->getClientInfo());
     }
 
@@ -263,7 +319,7 @@ class VerificationRecordTest extends TestCase
     public function testSetClientInfoWithNullAndEmpty(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act & Assert
         $record->setClientInfo(null);
@@ -279,7 +335,7 @@ class VerificationRecordTest extends TestCase
     public function testSetErrorCode(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
 
         // Act & Assert
         $record->setErrorCode('E001');
@@ -295,7 +351,7 @@ class VerificationRecordTest extends TestCase
     public function testSetErrorMessage(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
 
         // Act & Assert
         $record->setErrorMessage('Face detection failed');
@@ -311,7 +367,7 @@ class VerificationRecordTest extends TestCase
     public function testIsSuccessful(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
 
         // Act & Assert
         $this->assertTrue($record->isSuccessful());
@@ -333,7 +389,7 @@ class VerificationRecordTest extends TestCase
     public function testIsFailed(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
 
         // Act & Assert
         $this->assertTrue($record->isFailed());
@@ -355,15 +411,14 @@ class VerificationRecordTest extends TestCase
     public function testSetError(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::FAILED);
         $errorCode = 'E404';
         $errorMessage = 'Face template not found';
 
         // Act
-        $result = $record->setError($errorCode, $errorMessage);
+        $record->setError($errorCode, $errorMessage);
 
         // Assert
-        $this->assertSame($record, $result); // 链式调用
         $this->assertSame($errorCode, $record->getErrorCode());
         $this->assertSame($errorMessage, $record->getErrorMessage());
     }
@@ -374,12 +429,12 @@ class VerificationRecordTest extends TestCase
     public function testGetClientInfoValueExistingKey(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $clientInfo = [
             'browser' => 'Firefox',
             'version' => '95.0',
             'mobile' => true,
-            'screen' => ['width' => 1920, 'height' => 1080]
+            'screen' => ['width' => 1920, 'height' => 1080],
         ];
         $record->setClientInfo($clientInfo);
 
@@ -396,7 +451,7 @@ class VerificationRecordTest extends TestCase
     public function testGetClientInfoValueNonExistingKey(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $record->setClientInfo(['browser' => 'Chrome']);
 
         // Act & Assert
@@ -411,7 +466,7 @@ class VerificationRecordTest extends TestCase
     public function testGetClientInfoValueWithNullClientInfo(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $record->setClientInfo(null);
 
         // Act & Assert
@@ -425,14 +480,13 @@ class VerificationRecordTest extends TestCase
     public function testSetClientInfoValueWithNullClientInfo(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $record->setClientInfo(null);
 
         // Act
-        $result = $record->setClientInfoValue('new_key', 'new_value');
+        $record->setClientInfoValue('new_key', 'new_value');
 
         // Assert
-        $this->assertSame($record, $result); // 链式调用
         $this->assertSame(['new_key' => 'new_value'], $record->getClientInfo());
     }
 
@@ -442,7 +496,7 @@ class VerificationRecordTest extends TestCase
     public function testSetClientInfoValueWithExistingClientInfo(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $record->setClientInfo(['existing' => 'value']);
 
         // Act
@@ -459,7 +513,7 @@ class VerificationRecordTest extends TestCase
     public function testSetClientInfoValueOverwriteExisting(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'login', VerificationResult::SUCCESS);
         $record->setClientInfo(['key' => 'old_value']);
 
         // Act
@@ -475,20 +529,20 @@ class VerificationRecordTest extends TestCase
     public function testComplexVerificationScenario(): void
     {
         // Arrange
-        $record = new VerificationRecord('premium_user_001', $this->mockStrategy, 'high_value_transfer', VerificationResult::SUCCESS);
-        
+        $record = $this->createVerificationRecord('premium_user_001', $this->mockStrategy, 'high_value_transfer', VerificationResult::SUCCESS);
+
         // Act - 设置完整的验证信息
-        $record->setOperationId('txn_20241226_001')
-               ->setVerificationType(VerificationType::FORCED)
-               ->setConfidenceScore(0.98)
-               ->setVerificationTime(2.35)
-               ->setClientInfo([
-                   'device_id' => 'device_12345',
-                   'browser' => 'Safari',
-                   'os' => 'iOS 17.2',
-                   'location' => ['lat' => 40.7128, 'lng' => -74.0060],
-                   'biometric_data' => ['face_quality' => 'high', 'liveness_check' => true]
-               ]);
+        $record->setOperationId('txn_20241226_001');
+        $record->setVerificationType(VerificationType::FORCED);
+        $record->setConfidenceScore(0.98);
+        $record->setVerificationTime(2.35);
+        $record->setClientInfo([
+            'device_id' => 'device_12345',
+            'browser' => 'Safari',
+            'os' => 'iOS 17.2',
+            'location' => ['lat' => 40.7128, 'lng' => -74.0060],
+            'biometric_data' => ['face_quality' => 'high', 'liveness_check' => true],
+        ]);
 
         // Assert
         $this->assertTrue($record->isSuccessful());
@@ -498,7 +552,9 @@ class VerificationRecordTest extends TestCase
         $this->assertSame(0.98, $record->getConfidenceScore());
         $this->assertSame(2.35, $record->getVerificationTime());
         $this->assertSame('device_12345', $record->getClientInfoValue('device_id'));
-        $this->assertTrue($record->getClientInfoValue('biometric_data')['liveness_check']);
+        $biometricData = $record->getClientInfoValue('biometric_data');
+        $this->assertIsArray($biometricData);
+        $this->assertTrue($biometricData['liveness_check']);
     }
 
     /**
@@ -507,18 +563,18 @@ class VerificationRecordTest extends TestCase
     public function testFailedVerificationScenario(): void
     {
         // Arrange
-        $record = new VerificationRecord('suspicious_user', $this->mockStrategy, 'login_attempt', VerificationResult::FAILED);
+        $record = $this->createVerificationRecord('suspicious_user', $this->mockStrategy, 'login_attempt', VerificationResult::FAILED);
 
         // Act
-        $record->setVerificationType(VerificationType::REQUIRED)
-               ->setConfidenceScore(0.12) // 低置信度
-               ->setVerificationTime(5.2) // 较长时间
-               ->setError('FACE_MISMATCH', 'Face does not match stored template')
-               ->setClientInfo([
-                   'ip' => '192.168.1.100',
-                   'suspicious_patterns' => ['multiple_attempts', 'unusual_timing'],
-                   'risk_score' => 0.85
-               ]);
+        $record->setVerificationType(VerificationType::REQUIRED);
+        $record->setConfidenceScore(0.12); // 低置信度
+        $record->setVerificationTime(5.2); // 较长时间
+        $record->setError('FACE_MISMATCH', 'Face does not match stored template');
+        $record->setClientInfo([
+            'ip' => '192.168.1.100',
+            'suspicious_patterns' => ['multiple_attempts', 'unusual_timing'],
+            'risk_score' => 0.85,
+        ]);
 
         // Assert
         $this->assertFalse($record->isSuccessful());
@@ -534,7 +590,7 @@ class VerificationRecordTest extends TestCase
     public function testBoundaryConditions(): void
     {
         // Arrange
-        $record = new VerificationRecord('boundary_user', $this->mockStrategy, 'test', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('boundary_user', $this->mockStrategy, 'test', VerificationResult::SUCCESS);
 
         // Act & Assert - 置信度边界
         $record->setConfidenceScore(0.0);
@@ -557,7 +613,7 @@ class VerificationRecordTest extends TestCase
     public function testTimestampInitialValues(): void
     {
         // Arrange
-        $record = new VerificationRecord('user123', $this->mockStrategy, 'test', VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord('user123', $this->mockStrategy, 'test', VerificationResult::SUCCESS);
 
         // Act & Assert - 新创建的实体时间戳应该为null，直到被持久化
         $this->assertNull($record->getCreateTime());
@@ -571,18 +627,23 @@ class VerificationRecordTest extends TestCase
         // Arrange
         $specialUserId = 'user@domain.com+test';
         $specialBusinessType = 'payment/transfer-高风险';
-        $record = new VerificationRecord($specialUserId, $this->mockStrategy, $specialBusinessType, VerificationResult::SUCCESS);
+        $record = $this->createVerificationRecord($specialUserId, $this->mockStrategy, $specialBusinessType, VerificationResult::SUCCESS);
 
         // Act
-        $record->setOperationId('op_123/456@789')
-               ->setError('E001', 'Error with special chars: <>?"{}[]')
-               ->setClientInfoValue('special_key', 'value with 中文 and émojis 🎉');
+        $record->setOperationId('op_123/456@789');
+        $record->setError('E001', 'Error with special chars: <>?"{}[]');
+        $record->setClientInfoValue('special_key', 'value with 中文 and émojis 🎉');
 
         // Assert
         $this->assertSame($specialUserId, $record->getUserId());
         $this->assertSame($specialBusinessType, $record->getBusinessType());
         $this->assertSame('op_123/456@789', $record->getOperationId());
-        $this->assertStringContainsString('special chars', $record->getErrorMessage());
-        $this->assertStringContainsString('🎉', $record->getClientInfoValue('special_key'));
+        $errorMessage = $record->getErrorMessage();
+        $this->assertIsString($errorMessage);
+        $this->assertStringContainsString('special chars', $errorMessage);
+
+        $clientInfoValue = $record->getClientInfoValue('special_key');
+        $this->assertIsString($clientInfoValue);
+        $this->assertStringContainsString('🎉', $clientInfoValue);
     }
-} 
+}

@@ -1,16 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Tests\Enum;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Enum\VerificationResult;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 
 /**
  * VerificationResult 枚举类测试
+ *
+ * @internal
  */
-class VerificationResultTest extends TestCase
+#[CoversClass(VerificationResult::class)]
+final class VerificationResultTest extends AbstractEnumTestCase
 {
-    public function test_enum_cases_exist(): void
+    public function testEnumCasesExist(): void
     {
         // Act & Assert
         $this->assertTrue(enum_exists(VerificationResult::class));
@@ -29,7 +35,7 @@ class VerificationResultTest extends TestCase
         $this->assertContains('timeout', $caseValues);
     }
 
-    public function test_success_case_properties(): void
+    public function testSuccessCaseProperties(): void
     {
         // Act
         $result = VerificationResult::SUCCESS;
@@ -41,7 +47,7 @@ class VerificationResultTest extends TestCase
         $this->assertFalse($result->isFailure());
     }
 
-    public function test_failed_case_properties(): void
+    public function testFailedCaseProperties(): void
     {
         // Act
         $result = VerificationResult::FAILED;
@@ -53,7 +59,7 @@ class VerificationResultTest extends TestCase
         $this->assertTrue($result->isFailure());
     }
 
-    public function test_skipped_case_properties(): void
+    public function testSkippedCaseProperties(): void
     {
         // Act
         $result = VerificationResult::SKIPPED;
@@ -65,7 +71,7 @@ class VerificationResultTest extends TestCase
         $this->assertFalse($result->isFailure());
     }
 
-    public function test_timeout_case_properties(): void
+    public function testTimeoutCaseProperties(): void
     {
         // Act
         $result = VerificationResult::TIMEOUT;
@@ -77,7 +83,7 @@ class VerificationResultTest extends TestCase
         $this->assertTrue($result->isFailure());
     }
 
-    public function test_get_description_returns_correct_strings(): void
+    public function testGetDescriptionReturnsCorrectStrings(): void
     {
         // Act & Assert
         $this->assertSame('验证成功', VerificationResult::SUCCESS->getDescription());
@@ -86,7 +92,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame('验证超时', VerificationResult::TIMEOUT->getDescription());
     }
 
-    public function test_is_successful_returns_correct_boolean(): void
+    public function testIsSuccessfulReturnsCorrectBoolean(): void
     {
         // Act & Assert
         $this->assertTrue(VerificationResult::SUCCESS->isSuccessful());
@@ -95,7 +101,7 @@ class VerificationResultTest extends TestCase
         $this->assertFalse(VerificationResult::TIMEOUT->isSuccessful());
     }
 
-    public function test_is_failure_returns_correct_boolean(): void
+    public function testIsFailureReturnsCorrectBoolean(): void
     {
         // Act & Assert
         $this->assertFalse(VerificationResult::SUCCESS->isFailure());
@@ -104,8 +110,7 @@ class VerificationResultTest extends TestCase
         $this->assertTrue(VerificationResult::TIMEOUT->isFailure());
     }
 
-
-    public function test_enum_values_are_unique(): void
+    public function testEnumValuesAreUnique(): void
     {
         // Arrange
         $cases = VerificationResult::cases();
@@ -119,7 +124,7 @@ class VerificationResultTest extends TestCase
         $this->assertCount(count($values), $uniqueValues, '枚举值应该是唯一的');
     }
 
-    public function test_enum_can_be_constructed_from_value(): void
+    public function testEnumCanBeConstructedFromValue(): void
     {
         // Act & Assert
         $this->assertSame(VerificationResult::SUCCESS, VerificationResult::from('success'));
@@ -128,7 +133,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame(VerificationResult::TIMEOUT, VerificationResult::from('timeout'));
     }
 
-    public function test_enum_try_from_with_valid_values(): void
+    public function testEnumTryFromWithValidValues(): void
     {
         // Act & Assert
         $this->assertSame(VerificationResult::SUCCESS, VerificationResult::tryFrom('success'));
@@ -137,7 +142,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame(VerificationResult::TIMEOUT, VerificationResult::tryFrom('timeout'));
     }
 
-    public function test_enum_try_from_with_invalid_value(): void
+    public function testEnumTryFromWithInvalidValue(): void
     {
         // Act & Assert
         $this->assertNull(VerificationResult::tryFrom('invalid'));
@@ -145,14 +150,14 @@ class VerificationResultTest extends TestCase
         $this->assertNull(VerificationResult::tryFrom('SUCCESS')); // 大小写敏感
     }
 
-    public function test_enum_from_throws_exception_with_invalid_value(): void
+    public function testEnumFromThrowsExceptionWithInvalidValue(): void
     {
         // Arrange & Act & Assert
         $this->expectException(\ValueError::class);
         VerificationResult::from('invalid');
     }
 
-    public function test_enum_comparison(): void
+    public function testEnumComparison(): void
     {
         // Arrange
         $success = VerificationResult::SUCCESS;
@@ -161,12 +166,13 @@ class VerificationResultTest extends TestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($success, VerificationResult::SUCCESS);
-        $this->assertNotSame($success, $failed);
+        /* @phpstan-ignore-next-line */
+        $this->assertFalse($success === $failed);
         $this->assertEquals($success->value, 'success');
         $this->assertNotEquals($success->value, $failed->value);
     }
 
-    public function test_enum_serialization(): void
+    public function testEnumSerialization(): void
     {
         // Arrange
         $result = VerificationResult::TIMEOUT;
@@ -180,13 +186,16 @@ class VerificationResultTest extends TestCase
         $this->assertSame($result->value, $unserialized->value);
     }
 
-    public function test_enum_json_serialization(): void
+    public function testEnumJsonSerialization(): void
     {
         // Arrange
         $result = VerificationResult::SKIPPED;
 
         // Act
         $json = json_encode($result);
+        if (false === $json) {
+            self::fail('Failed to encode enum to JSON');
+        }
         $decoded = json_decode($json, true);
 
         // Assert
@@ -194,7 +203,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame('skipped', $decoded);
     }
 
-    public function test_enum_string_representation(): void
+    public function testEnumStringRepresentation(): void
     {
         // Act & Assert
         $this->assertSame('success', (string) VerificationResult::SUCCESS->value);
@@ -203,7 +212,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame('timeout', (string) VerificationResult::TIMEOUT->value);
     }
 
-    public function test_enum_in_array_operations(): void
+    public function testEnumInArrayOperations(): void
     {
         // Arrange
         $results = [VerificationResult::SUCCESS, VerificationResult::SKIPPED];
@@ -214,7 +223,7 @@ class VerificationResultTest extends TestCase
         $this->assertNotContains(VerificationResult::FAILED, $results);
     }
 
-    public function test_enum_in_match_expression(): void
+    public function testEnumInMatchExpression(): void
     {
         // Arrange & Act & Assert
         foreach (VerificationResult::cases() as $result) {
@@ -236,7 +245,7 @@ class VerificationResultTest extends TestCase
         }
     }
 
-    public function test_all_cases_have_descriptions(): void
+    public function testAllCasesHaveDescriptions(): void
     {
         // Act & Assert
         foreach (VerificationResult::cases() as $result) {
@@ -245,7 +254,7 @@ class VerificationResultTest extends TestCase
         }
     }
 
-    public function test_only_success_is_successful(): void
+    public function testOnlySuccessIsSuccessful(): void
     {
         // Arrange
         $successfulCount = 0;
@@ -254,9 +263,9 @@ class VerificationResultTest extends TestCase
         // Act
         foreach (VerificationResult::cases() as $result) {
             if ($result->isSuccessful()) {
-                $successfulCount++;
+                ++$successfulCount;
             } else {
-                $nonSuccessfulCount++;
+                ++$nonSuccessfulCount;
             }
         }
 
@@ -266,7 +275,7 @@ class VerificationResultTest extends TestCase
         $this->assertTrue(VerificationResult::SUCCESS->isSuccessful());
     }
 
-    public function test_failure_cases_count(): void
+    public function testFailureCasesCount(): void
     {
         // Arrange
         $failureCount = 0;
@@ -275,9 +284,9 @@ class VerificationResultTest extends TestCase
         // Act
         foreach (VerificationResult::cases() as $result) {
             if ($result->isFailure()) {
-                $failureCount++;
+                ++$failureCount;
             } else {
-                $nonFailureCount++;
+                ++$nonFailureCount;
             }
         }
 
@@ -286,7 +295,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame(2, $nonFailureCount, '应该有两个非失败结果');
     }
 
-    public function test_enum_backed_by_string(): void
+    public function testEnumBackedByString(): void
     {
         // Act & Assert
         $reflection = new \ReflectionEnum(VerificationResult::class);
@@ -294,7 +303,7 @@ class VerificationResultTest extends TestCase
         $this->assertSame('string', $reflection->getBackingType()->getName());
     }
 
-    public function test_business_logic_consistency(): void
+    public function testBusinessLogicConsistency(): void
     {
         // Assert - 验证业务逻辑一致性
         // 成功结果不应该是失败
@@ -312,7 +321,7 @@ class VerificationResultTest extends TestCase
         $this->assertFalse(VerificationResult::SKIPPED->isFailure());
     }
 
-    public function test_result_categorization(): void
+    public function testResultCategorization(): void
     {
         // Assert - 测试结果分类的正确性
         $successResults = [VerificationResult::SUCCESS];
@@ -335,14 +344,14 @@ class VerificationResultTest extends TestCase
         }
     }
 
-    public function test_result_filtering_by_success(): void
+    public function testResultFilteringBySuccess(): void
     {
         // Arrange
         $allResults = VerificationResult::cases();
 
         // Act
-        $successfulResults = array_filter($allResults, fn($result) => $result->isSuccessful());
-        $nonSuccessfulResults = array_filter($allResults, fn($result) => !$result->isSuccessful());
+        $successfulResults = array_filter($allResults, fn ($result) => $result->isSuccessful());
+        $nonSuccessfulResults = array_filter($allResults, fn ($result) => !$result->isSuccessful());
 
         // Assert
         $this->assertCount(1, $successfulResults);
@@ -350,19 +359,65 @@ class VerificationResultTest extends TestCase
         $this->assertContains(VerificationResult::SUCCESS, $successfulResults);
     }
 
-    public function test_result_filtering_by_failure(): void
+    public function testResultFilteringByFailure(): void
     {
         // Arrange
         $allResults = VerificationResult::cases();
 
         // Act
-        $failureResults = array_filter($allResults, fn($result) => $result->isFailure());
-        $nonFailureResults = array_filter($allResults, fn($result) => !$result->isFailure());
+        $failureResults = array_filter($allResults, fn ($result) => $result->isFailure());
+        $nonFailureResults = array_filter($allResults, fn ($result) => !$result->isFailure());
 
         // Assert
         $this->assertCount(2, $failureResults);
         $this->assertCount(2, $nonFailureResults);
         $this->assertContains(VerificationResult::FAILED, $failureResults);
         $this->assertContains(VerificationResult::TIMEOUT, $failureResults);
+    }
+
+    public function testToArray(): void
+    {
+        // Act - 测试每个枚举实例的toArray方法
+        foreach (VerificationResult::cases() as $result) {
+            $arrayResult = $result->toArray();
+
+            // Assert
+            $this->assertIsArray($arrayResult);
+            $this->assertArrayHasKey('value', $arrayResult);
+            $this->assertArrayHasKey('label', $arrayResult);
+            $this->assertSame($result->value, $arrayResult['value']);
+            $this->assertSame($result->getDescription(), $arrayResult['label']);
+        }
+
+        // 验证具体的值
+        $this->assertSame(['value' => 'success', 'label' => '验证成功'], VerificationResult::SUCCESS->toArray());
+        $this->assertSame(['value' => 'failed', 'label' => '验证失败'], VerificationResult::FAILED->toArray());
+        $this->assertSame(['value' => 'skipped', 'label' => '跳过验证'], VerificationResult::SKIPPED->toArray());
+        $this->assertSame(['value' => 'timeout', 'label' => '验证超时'], VerificationResult::TIMEOUT->toArray());
+    }
+
+    public function testGenOptions(): void
+    {
+        // Act - 测试静态方法genOptions
+        $result = VerificationResult::genOptions();
+
+        // Assert
+        $this->assertIsArray($result);
+        $this->assertCount(4, $result);
+
+        // 验证每个选项的结构
+        foreach ($result as $option) {
+            $this->assertIsArray($option);
+            $this->assertArrayHasKey('label', $option);
+            $this->assertArrayHasKey('text', $option);
+            $this->assertArrayHasKey('value', $option);
+        }
+
+        // 验证具体的值
+        $values = array_column($result, 'value');
+        $this->assertContains('success', $values);
+        $this->assertContains('failed', $values);
+        $this->assertContains('skipped', $values);
+        $this->assertContains('timeout', $values);
     }
 }

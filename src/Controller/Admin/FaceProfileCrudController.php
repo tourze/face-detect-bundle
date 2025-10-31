@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CodeEditorField;
@@ -26,9 +27,11 @@ use Tourze\FaceDetectBundle\Enum\FaceProfileStatus;
 
 /**
  * 人脸档案管理控制器
+ *
+ * @extends AbstractCrudController<FaceProfile>
  */
 #[AdminCrud(routePath: '/face-detect/face-profile', routeName: 'face_detect_face_profile')]
-class FaceProfileCrudController extends AbstractCrudController
+final class FaceProfileCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -47,31 +50,39 @@ class FaceProfileCrudController extends AbstractCrudController
             ->setHelp('index', '管理用户的人脸特征数据和相关信息')
             ->setDefaultSort(['id' => 'DESC'])
             ->setSearchFields(['userId', 'collectionMethod'])
-            ->setPaginatorPageSize(20);
+            ->setPaginatorPageSize(20)
+        ;
     }
 
+    /**
+     * @return iterable<FieldInterface|string>
+     */
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', 'ID')
             ->setMaxLength(9999)
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield TextField::new('userId', '用户ID')
             ->setRequired(true)
-            ->setHelp('用户的唯一标识符');
+            ->setHelp('用户的唯一标识符')
+        ;
 
         yield TextareaField::new('faceFeatures', '人脸特征')
             ->setRequired(true)
             ->setHelp('加密的人脸特征数据')
             ->hideOnIndex()
-            ->setMaxLength(1000);
+            ->setMaxLength(1000)
+        ;
 
         yield NumberField::new('qualityScore', '质量评分')
             ->setNumDecimals(2)
             ->setHelp('人脸质量评分(0-1)')
-            ->formatValue(function ($value) {
-                return number_format((float)$value, 2);
-            });
+            ->formatValue(function (mixed $value): string {
+                return number_format(is_numeric($value) ? (float) $value : 0.0, 2);
+            })
+        ;
 
         yield ChoiceField::new('collectionMethod', '采集方式')
             ->setChoices([
@@ -79,35 +90,42 @@ class FaceProfileCrudController extends AbstractCrudController
                 '自动采集' => 'auto',
                 '导入数据' => 'import',
             ])
-            ->renderExpanded(false);
+            ->renderExpanded(false)
+        ;
 
         yield CodeEditorField::new('deviceInfo', '设备信息')
             ->setLanguage('javascript')
             ->hideOnIndex()
-            ->setHelp('采集设备的详细信息');
+            ->setHelp('采集设备的详细信息')
+        ;
 
         yield ChoiceField::new('status', '状态')
             ->setFormType(EnumType::class)
             ->setFormTypeOptions(['class' => FaceProfileStatus::class])
-            ->formatValue(function ($value) {
+            ->formatValue(function (mixed $value): string {
                 return $value instanceof FaceProfileStatus ? $value->getDescription() : '';
-            });
+            })
+        ;
 
         yield DateTimeField::new('expiresTime', '过期时间')
             ->setRequired(false)
-            ->setHelp('档案过期时间，为空表示永不过期');
+            ->setHelp('档案过期时间，为空表示永不过期')
+        ;
 
         yield DateTimeField::new('createTime', '创建时间')
             ->hideOnForm()
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+        ;
 
         yield DateTimeField::new('updateTime', '更新时间')
             ->hideOnForm()
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
     {
+        /** @var array<string, string> $statusChoices */
         $statusChoices = [];
         foreach (FaceProfileStatus::cases() as $case) {
             $statusChoices[$case->getDescription()] = $case->value;
@@ -124,13 +142,19 @@ class FaceProfileCrudController extends AbstractCrudController
             ->add(ChoiceFilter::new('status', '状态')
                 ->setChoices($statusChoices))
             ->add(DateTimeFilter::new('createTime', '创建时间'))
-            ->add(DateTimeFilter::new('expiresTime', '过期时间'));
+            ->add(DateTimeFilter::new('expiresTime', '过期时间'))
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, Action::DELETE]);
+        ;
+    }
+
+    public function createEntity(string $entityFqcn): FaceProfile
+    {
+        return new FaceProfile();
     }
 }

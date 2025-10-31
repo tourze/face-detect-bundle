@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tourze\FaceDetectBundle\Tests\Exception;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Exception\BaiduAiException;
 use Tourze\FaceDetectBundle\Exception\FaceDetectException;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 
 /**
  * BaiduAiException 异常类单元测试
@@ -17,8 +18,11 @@ use Tourze\FaceDetectBundle\Exception\FaceDetectException;
  * - 工厂方法创建特定异常
  * - 异常继承关系
  * - 边界条件和特殊场景
+ *
+ * @internal
  */
-class BaiduAiExceptionTest extends TestCase
+#[CoversClass(BaiduAiException::class)]
+final class BaiduAiExceptionTest extends AbstractExceptionTestCase
 {
     /**
      * 测试构造函数默认行为
@@ -267,7 +271,7 @@ class BaiduAiExceptionTest extends TestCase
         // Act & Assert
         foreach ($testCases as $timeout) {
             $exception = BaiduAiException::networkTimeout($timeout);
-            $this->assertStringContainsString((string)$timeout, $exception->getMessage());
+            $this->assertStringContainsString((string) $timeout, $exception->getMessage());
         }
     }
 
@@ -470,14 +474,14 @@ class BaiduAiExceptionTest extends TestCase
     {
         // Arrange
         $factoryMethods = [
-            fn() => BaiduAiException::accessTokenInvalid(),
-            fn() => BaiduAiException::quotaExceeded(),
-            fn() => BaiduAiException::rateLimited(),
-            fn() => BaiduAiException::networkTimeout(30),
-            fn() => BaiduAiException::invalidResponse('test'),
-            fn() => BaiduAiException::apiRequestFailed('/test'),
-            fn() => BaiduAiException::permissionDenied(),
-            fn() => BaiduAiException::fromBaiduError(110),
+            fn () => BaiduAiException::accessTokenInvalid(),
+            fn () => BaiduAiException::quotaExceeded(),
+            fn () => BaiduAiException::rateLimited(),
+            fn () => BaiduAiException::networkTimeout(30),
+            fn () => BaiduAiException::invalidResponse('test'),
+            fn () => BaiduAiException::apiRequestFailed('/test'),
+            fn () => BaiduAiException::permissionDenied(),
+            fn () => BaiduAiException::fromBaiduError(110),
         ];
 
         // Act & Assert

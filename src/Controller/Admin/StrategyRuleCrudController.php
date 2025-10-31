@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Field\FieldInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -28,9 +29,11 @@ use Tourze\FaceDetectBundle\Entity\StrategyRule;
 
 /**
  * 策略规则管理控制器
+ *
+ * @extends AbstractCrudController<StrategyRule>
  */
 #[AdminCrud(routePath: '/face-detect/strategy-rule', routeName: 'face_detect_strategy_rule')]
-class StrategyRuleCrudController extends AbstractCrudController
+final class StrategyRuleCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -49,21 +52,37 @@ class StrategyRuleCrudController extends AbstractCrudController
             ->setHelp('index', '管理验证策略的具体规则配置')
             ->setDefaultSort(['priority' => 'DESC', 'id' => 'DESC'])
             ->setSearchFields(['ruleName', 'ruleType'])
-            ->setPaginatorPageSize(20);
+            ->setPaginatorPageSize(20)
+        ;
     }
 
+    /**
+     * @return iterable<FieldInterface|string>
+     */
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id', 'ID')
             ->setMaxLength(9999)
-            ->hideOnForm();
+            ->hideOnForm()
+        ;
 
         yield AssociationField::new('strategy', '关联策略')
             ->setRequired(true)
             ->setHelp('选择此规则所属的验证策略')
-            ->formatValue(function ($value) {
-                return $value ? sprintf('%s (%s)', $value->getName(), $value->getBusinessType()) : '';
-            });
+            ->formatValue(function (mixed $value): string {
+                if (is_object($value) && method_exists($value, 'getName') && method_exists($value, 'getBusinessType')) {
+                    $name = $value->getName();
+                    $businessType = $value->getBusinessType();
+
+                    return sprintf('%s (%s)',
+                        is_string($name) ? $name : '',
+                        is_string($businessType) ? $businessType : ''
+                    );
+                }
+
+                return '';
+            })
+        ;
 
         yield ChoiceField::new('ruleType', '规则类型')
             ->setChoices([
@@ -73,44 +92,48 @@ class StrategyRuleCrudController extends AbstractCrudController
                 '金额规则' => 'amount',
             ])
             ->setRequired(true)
-            ->setHelp('规则的分类类型');
+            ->setHelp('规则的分类类型')
+        ;
 
         yield TextField::new('ruleName', '规则名称')
             ->setRequired(true)
-            ->setHelp('规则的描述性名称');
+            ->setHelp('规则的描述性名称')
+        ;
 
-        yield CodeEditorField::new('conditions', '规则条件')
+        yield CodeEditorField::new('conditionsJson', '规则条件')
             ->setLanguage('javascript')
             ->hideOnIndex()
             ->setHelp('JSON格式的规则条件配置')
-            ->formatValue(function ($value) {
-                return is_array($value) ? json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $value;
-            });
+            ->setFormTypeOption('empty_data', '{}')
+        ;
 
-        yield CodeEditorField::new('actions', '规则动作')
+        yield CodeEditorField::new('actionsJson', '规则动作')
             ->setLanguage('javascript')
             ->hideOnIndex()
             ->setHelp('JSON格式的规则动作配置')
-            ->formatValue(function ($value) {
-                return is_array($value) ? json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $value;
-            });
+            ->setFormTypeOption('empty_data', '{}')
+        ;
 
         yield BooleanField::new('isEnabled', '启用状态')
-            ->setHelp('是否启用此规则');
+            ->setHelp('是否启用此规则')
+        ;
 
         yield IntegerField::new('priority', '规则优先级')
             ->setHelp('数值越大优先级越高')
-            ->formatValue(function ($value) {
-                return (int)$value;
-            });
+            ->formatValue(function (mixed $value): string {
+                return (string) (is_numeric($value) ? (int) $value : 0);
+            })
+        ;
 
         yield DateTimeField::new('createTime', '创建时间')
             ->hideOnForm()
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+        ;
 
         yield DateTimeField::new('updateTime', '更新时间')
             ->hideOnForm()
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -127,13 +150,19 @@ class StrategyRuleCrudController extends AbstractCrudController
             ->add(TextFilter::new('ruleName', '规则名称'))
             ->add(BooleanFilter::new('isEnabled', '启用状态'))
             ->add(NumericFilter::new('priority', '规则优先级'))
-            ->add(DateTimeFilter::new('createTime', '创建时间'));
+            ->add(DateTimeFilter::new('createTime', '创建时间'))
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->reorder(Crud::PAGE_INDEX, [Action::DETAIL, Action::EDIT, Action::DELETE]);
+        ;
+    }
+
+    public function createEntity(string $entityFqcn): StrategyRule
+    {
+        return new StrategyRule();
     }
 }

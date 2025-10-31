@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\FaceDetectBundle\Enum;
 
 use Tourze\EnumExtra\Itemable;
@@ -11,18 +13,23 @@ use Tourze\EnumExtra\SelectTrait;
 /**
  * 验证结果枚举
  */
-enum VerificationResult: string implements Itemable, Labelable, Selectable
+enum VerificationResult: string implements Labelable, Itemable, Selectable
 {
     use ItemTrait;
     use SelectTrait;
-    case SUCCESS = 'success';  // 验证成功
-    case FAILED = 'failed';    // 验证失败
-    case SKIPPED = 'skipped';  // 跳过验证
-    case TIMEOUT = 'timeout';  // 验证超时
+    case SUCCESS = 'success';
+    case FAILED = 'failed';
+    case SKIPPED = 'skipped';
+    case TIMEOUT = 'timeout';
 
     public function getLabel(): string
     {
-        return match($this) {
+        return $this->getDescription();
+    }
+
+    public function getDescription(): string
+    {
+        return match ($this) {
             self::SUCCESS => '验证成功',
             self::FAILED => '验证失败',
             self::SKIPPED => '跳过验证',
@@ -30,27 +37,19 @@ enum VerificationResult: string implements Itemable, Labelable, Selectable
         };
     }
 
-    /**
-     * 获取结果描述
-     */
-    public function getDescription(): string
-    {
-        return $this->getLabel();
-    }
-
-    /**
-     * 检查是否为成功结果
-     */
     public function isSuccessful(): bool
     {
-        return $this === self::SUCCESS;
+        return match ($this) {
+            self::SUCCESS => true,
+            self::FAILED, self::SKIPPED, self::TIMEOUT => false,
+        };
     }
 
-    /**
-     * 检查是否为失败结果
-     */
     public function isFailure(): bool
     {
-        return $this === self::FAILED || $this === self::TIMEOUT;
+        return match ($this) {
+            self::FAILED, self::TIMEOUT => true,
+            self::SUCCESS, self::SKIPPED => false,
+        };
     }
 }

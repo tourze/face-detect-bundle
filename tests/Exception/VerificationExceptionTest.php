@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Tourze\FaceDetectBundle\Tests\Exception;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\FaceDetectBundle\Exception\FaceDetectException;
 use Tourze\FaceDetectBundle\Exception\VerificationException;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 
 /**
  * VerificationException 异常类单元测试
@@ -16,8 +17,11 @@ use Tourze\FaceDetectBundle\Exception\VerificationException;
  * - 工厂方法创建特定异常
  * - 异常继承关系
  * - 边界条件和特殊场景
+ *
+ * @internal
  */
-class VerificationExceptionTest extends TestCase
+#[CoversClass(VerificationException::class)]
+final class VerificationExceptionTest extends AbstractExceptionTestCase
 {
     /**
      * 测试构造函数默认行为
@@ -123,9 +127,9 @@ class VerificationExceptionTest extends TestCase
         // Assert
         $this->assertInstanceOf(VerificationException::class, $exception);
         $this->assertStringContainsString('人脸相似度', $exception->getMessage());
-        $this->assertStringContainsString((string)$similarity, $exception->getMessage());
+        $this->assertStringContainsString((string) $similarity, $exception->getMessage());
         $this->assertStringContainsString('低于阈值', $exception->getMessage());
-        $this->assertStringContainsString((string)$threshold, $exception->getMessage());
+        $this->assertStringContainsString((string) $threshold, $exception->getMessage());
         $this->assertSame(VerificationException::ERROR_SIMILARITY_TOO_LOW, $exception->getCode());
     }
 
@@ -244,9 +248,9 @@ class VerificationExceptionTest extends TestCase
         // Assert
         $this->assertInstanceOf(VerificationException::class, $exception);
         $this->assertStringContainsString('验证次数', $exception->getMessage());
-        $this->assertStringContainsString((string)$currentCount, $exception->getMessage());
+        $this->assertStringContainsString((string) $currentCount, $exception->getMessage());
         $this->assertStringContainsString('超过限制', $exception->getMessage());
-        $this->assertStringContainsString((string)$maxCount, $exception->getMessage());
+        $this->assertStringContainsString((string) $maxCount, $exception->getMessage());
         $this->assertSame(VerificationException::ERROR_VERIFICATION_LIMIT_EXCEEDED, $exception->getCode());
     }
 
@@ -266,8 +270,8 @@ class VerificationExceptionTest extends TestCase
         // Act & Assert
         foreach ($testCases as [$current, $max]) {
             $exception = VerificationException::verificationLimitExceeded($current, $max);
-            $this->assertStringContainsString((string)$current, $exception->getMessage());
-            $this->assertStringContainsString((string)$max, $exception->getMessage());
+            $this->assertStringContainsString((string) $current, $exception->getMessage());
+            $this->assertStringContainsString((string) $max, $exception->getMessage());
             $this->assertSame(VerificationException::ERROR_VERIFICATION_LIMIT_EXCEEDED, $exception->getCode());
         }
     }
@@ -336,7 +340,7 @@ class VerificationExceptionTest extends TestCase
         // Act & Assert
         foreach ($timeoutValues as $timeout) {
             $exception = VerificationException::verificationTimeout($timeout);
-            $this->assertStringContainsString((string)$timeout, $exception->getMessage());
+            $this->assertStringContainsString((string) $timeout, $exception->getMessage());
             $this->assertSame(VerificationException::ERROR_VERIFICATION_TIMEOUT, $exception->getCode());
         }
     }
@@ -465,12 +469,12 @@ class VerificationExceptionTest extends TestCase
     {
         // Arrange
         $factoryMethods = [
-            fn() => VerificationException::similarityTooLow(0.7, 0.8),
-            fn() => VerificationException::faceProfileNotFound('user123'),
-            fn() => VerificationException::verificationExpired('user123', 'login'),
-            fn() => VerificationException::verificationLimitExceeded(5, 3),
-            fn() => VerificationException::strategyNotFound('payment'),
-            fn() => VerificationException::verificationTimeout(30),
+            fn () => VerificationException::similarityTooLow(0.7, 0.8),
+            fn () => VerificationException::faceProfileNotFound('user123'),
+            fn () => VerificationException::verificationExpired('user123', 'login'),
+            fn () => VerificationException::verificationLimitExceeded(5, 3),
+            fn () => VerificationException::strategyNotFound('payment'),
+            fn () => VerificationException::verificationTimeout(30),
         ];
 
         // Act & Assert
@@ -494,10 +498,10 @@ class VerificationExceptionTest extends TestCase
         // Assert - 检查消息格式是否包含必要的信息
         $this->assertStringContainsString('人脸相似度', $exception1->getMessage());
         $this->assertStringContainsString('低于阈值', $exception1->getMessage());
-        
+
         $this->assertStringContainsString('验证次数', $exception2->getMessage());
         $this->assertStringContainsString('超过限制', $exception2->getMessage());
-        
+
         $this->assertStringContainsString('验证超时', $exception3->getMessage());
         $this->assertStringContainsString('超过', $exception3->getMessage());
         $this->assertStringContainsString('秒', $exception3->getMessage());
@@ -536,4 +540,4 @@ class VerificationExceptionTest extends TestCase
         $exception3 = VerificationException::verificationExpired('test', '');
         $this->assertStringContainsString('业务  的', $exception3->getMessage());
     }
-} 
+}
