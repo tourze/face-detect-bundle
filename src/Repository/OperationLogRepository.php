@@ -17,7 +17,7 @@ use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
  * @extends ServiceEntityRepository<OperationLog>
  */
 #[AsRepository(entityClass: OperationLog::class)]
-class OperationLogRepository extends ServiceEntityRepository
+final class OperationLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

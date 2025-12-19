@@ -16,7 +16,7 @@ use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
  * @extends ServiceEntityRepository<VerificationStrategy>
  */
 #[AsRepository(entityClass: VerificationStrategy::class)]
-class VerificationStrategyRepository extends ServiceEntityRepository
+final class VerificationStrategyRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

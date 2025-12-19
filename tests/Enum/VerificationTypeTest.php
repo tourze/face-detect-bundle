@@ -137,7 +137,7 @@ final class VerificationTypeTest extends AbstractEnumTestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($required, VerificationType::REQUIRED);
-        /* @phpstan-ignore-next-line */
+        
         $this->assertFalse($required === $optional);
         $this->assertEquals($required->value, 'required');
         $this->assertNotEquals($required->value, $optional->value);

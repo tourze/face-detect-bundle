@@ -152,7 +152,7 @@ final class FaceProfileStatusTest extends AbstractEnumTestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($active1, FaceProfileStatus::ACTIVE);
-        /* @phpstan-ignore-next-line */
+        
         $this->assertFalse($active1 === $expired);
         $this->assertEquals($active1->value, 'active');
         $this->assertNotEquals($active1->value, $expired->value);

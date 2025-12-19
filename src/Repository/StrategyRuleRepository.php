@@ -17,7 +17,7 @@ use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
  * @extends ServiceEntityRepository<StrategyRule>
  */
 #[AsRepository(entityClass: StrategyRule::class)]
-class StrategyRuleRepository extends ServiceEntityRepository
+final class StrategyRuleRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

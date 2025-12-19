@@ -32,7 +32,8 @@ final class DatabaseIntegrationTest extends AbstractIntegrationTestCase
 
         // Check if required tables exist
         $schemaManager = $connection->createSchemaManager();
-        $tables = $schemaManager->listTableNames();
+        $tableNames = $schemaManager->introspectTableNames();
+        $tables = array_map(static fn ($name) => trim($name->toString(), '"'), $tableNames);
 
         $this->assertContains('face_profiles', $tables);
         $this->assertContains('verification_strategies', $tables);

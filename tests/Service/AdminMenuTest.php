@@ -10,11 +10,7 @@ use Tourze\EasyAdminMenuBundle\Service\MenuProviderInterface;
 use Tourze\FaceDetectBundle\Service\AdminMenu;
 use Tourze\PHPUnitSymfonyWebTest\AbstractEasyAdminMenuTestCase;
 
-/**
- * @internal
- *
- * @phpstan-ignore-next-line
- */
+
 #[CoversClass(AdminMenu::class)]
 #[RunTestsInSeparateProcesses]
 final class AdminMenuTest extends AbstractEasyAdminMenuTestCase

@@ -184,7 +184,7 @@ final class OperationStatusTest extends AbstractEnumTestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($pending, OperationStatus::PENDING);
-        /* @phpstan-ignore-next-line */
+        
         $this->assertFalse($pending === $completed);
         $this->assertEquals($pending->value, 'pending');
         $this->assertNotEquals($pending->value, $completed->value);

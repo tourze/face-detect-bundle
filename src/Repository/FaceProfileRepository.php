@@ -17,7 +17,7 @@ use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
  * @extends ServiceEntityRepository<FaceProfile>
  */
 #[AsRepository(entityClass: FaceProfile::class)]
-class FaceProfileRepository extends ServiceEntityRepository
+final class FaceProfileRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

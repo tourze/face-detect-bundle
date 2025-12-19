@@ -166,7 +166,7 @@ final class VerificationResultTest extends AbstractEnumTestCase
         // Act & Assert
         // 枚举是单例的，相同的枚举值总是相同的实例
         $this->assertSame($success, VerificationResult::SUCCESS);
-        /* @phpstan-ignore-next-line */
+        
         $this->assertFalse($success === $failed);
         $this->assertEquals($success->value, 'success');
         $this->assertNotEquals($success->value, $failed->value);

@@ -6,7 +6,7 @@ namespace Tourze\FaceDetectBundle\DependencyInjection;
 
 use Tourze\SymfonyDependencyServiceLoader\AutoExtension;
 
-class FaceDetectExtension extends AutoExtension
+final class FaceDetectExtension extends AutoExtension
 {
     protected function getConfigDir(): string
     {
